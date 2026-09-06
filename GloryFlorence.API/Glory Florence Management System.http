@@ -1,0 +1,143 @@
+@HostAddress = http://localhost:5222
+
+### 1. Login as Super Admin (Username: admin, Password: Admin123!)
+# @name loginSuperAdmin
+POST {{HostAddress}}/api/auth/login
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "Admin123!"
+}
+
+### 2. Login as Admin (Username: clinicadmin, Password: Admin123!)
+# @name loginAdmin
+POST {{HostAddress}}/api/auth/login
+Content-Type: application/json
+
+{
+  "username": "clinicadmin",
+  "password": "Admin123!"
+}
+
+### 3. Login as Physiotherapist (Username: therapist, Password: Therapist123!)
+# @name loginTherapist
+POST {{HostAddress}}/api/auth/login
+Content-Type: application/json
+
+{
+  "username": "therapist",
+  "password": "Therapist123!"
+}
+
+### 4. Login as Doctor (Username: doctor, Password: Doctor123!)
+# @name loginDoctor
+POST {{HostAddress}}/api/auth/login
+Content-Type: application/json
+
+{
+  "username": "doctor",
+  "password": "Doctor123!"
+}
+
+### 5. Login as Receptionist (Username: receptionist, Password: Receptionist123!)
+# @name loginReceptionist
+POST {{HostAddress}}/api/auth/login
+Content-Type: application/json
+
+{
+  "username": "receptionist",
+  "password": "Receptionist123!"
+}
+
+### 6. Login as Accountant (Username: accountant, Password: Accountant123!)
+# @name loginAccountant
+POST {{HostAddress}}/api/auth/login
+Content-Type: application/json
+
+{
+  "username": "accountant",
+  "password": "Accountant123!"
+}
+
+### 7. Login as Patient (Username: patientuser, Password: Patient123!)
+# @name loginPatient
+POST {{HostAddress}}/api/auth/login
+Content-Type: application/json
+
+{
+  "username": "patientuser",
+  "password": "Patient123!"
+}
+
+### --- TEST SECURE ENDPOINTS WITH SUPER ADMIN TOKEN ---
+
+@token = {{loginSuperAdmin.response.body.data.token}}
+
+### 8. Get Current User Details
+GET {{HostAddress}}/api/auth/me
+Authorization: Bearer {{token}}
+
+### 9. Get Patients List (Test Seeded Patient Data)
+GET {{HostAddress}}/api/patients
+Authorization: Bearer {{token}}
+
+### 10. Get Master Data - Genders
+GET {{HostAddress}}/api/masterdata/genders
+Authorization: Bearer {{token}}
+
+### 11. Get Master Data - Blood Groups
+GET {{HostAddress}}/api/masterdata/bloodgroups
+Authorization: Bearer {{token}}
+
+### 12. Get Master Data - Countries
+GET {{HostAddress}}/api/masterdata/countries
+Authorization: Bearer {{token}}
+
+### 13. Get Master Data - States
+GET {{HostAddress}}/api/masterdata/states
+Authorization: Bearer {{token}}
+
+### 14. Get Master Data - Cities
+GET {{HostAddress}}/api/masterdata/cities
+Authorization: Bearer {{token}}
+
+### 15. Get Master Data - Specializations
+GET {{HostAddress}}/api/masterdata/specializations
+Authorization: Bearer {{token}}
+
+### 16. Get Master Data - Categories
+GET {{HostAddress}}/api/masterdata/categories
+Authorization: Bearer {{token}}
+
+### 17. Get Patient Medical History (Patient ID: 1)
+GET {{HostAddress}}/api/patients/1/medical-history
+Authorization: Bearer {{token}}
+
+### 18. Add Patient Medical History (Patient ID: 1)
+POST {{HostAddress}}/api/patients/1/medical-history
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "diagnosis": "Left Ankle Sprain - Grade II",
+  "symptoms": "Swelling, bruising, pain on weight-bearing",
+  "treatmentReceived": "RICE protocol, mobilization exercises",
+  "remarks": "Patient shows good improvement"
+}
+
+### 19. Get Patient Documents Metadata (Patient ID: 1)
+GET {{HostAddress}}/api/patients/1/documents
+Authorization: Bearer {{token}}
+
+### 20. Add Patient Document Metadata (Patient ID: 1)
+POST {{HostAddress}}/api/patients/1/documents
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "documentName": "Ankle_XRay_Report.pdf",
+  "documentType": "X-Ray",
+  "filePath": "/uploads/documents/ankle_xray_1.pdf",
+  "fileSize": 1048576
+}

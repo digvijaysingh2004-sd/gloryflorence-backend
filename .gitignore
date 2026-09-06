@@ -1,0 +1,148 @@
+## =========================================================================
+## Glory Florence Management System - Git Ignore Configuration
+## =========================================================================
+
+# -------------------------------------------------------------------------
+# Build Results & Artifacts
+# -------------------------------------------------------------------------
+[Bb]in/
+[Oo]bj/
+[Oo]ut/
+build/
+dist/
+target/
+*.i
+*.o
+*.obj
+
+# -------------------------------------------------------------------------
+# Visual Studio / Visual Studio Code / JetBrains Rider IDE Files
+# -------------------------------------------------------------------------
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.userprefs
+*.dbmdl
+*.jsproj.user
+*.vcxproj.user
+*.filters
+*.opendb
+*.VC.db
+
+# JetBrains Rider / ReSharper
+.idea/
+_ReSharper*/
+*.DotSettings.user
+
+# Visual Studio Code
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.history/
+*.ionide
+
+# -------------------------------------------------------------------------
+# Sensitive Files, Configuration & Secrets (CRITICAL)
+# -------------------------------------------------------------------------
+# Local and environment-specific appsettings
+appsettings.Development.json
+**/appsettings.Development.json
+appsettings.Production.json
+**/appsettings.Production.json
+appsettings.Staging.json
+**/appsettings.Staging.json
+appsettings.Local.json
+**/appsettings.Local.json
+appsettings.*.local.json
+**/appsettings.*.local.json
+*.local.json
+secrets.json
+**/secrets.json
+
+# Environment files
+.env
+.env.*
+!.env.example
+!.env.template
+
+# Security certificates & private keys
+*.pfx
+*.cer
+*.crt
+*.key
+*.pem
+*.pubxml.user
+*.publishsettings
+
+# -------------------------------------------------------------------------
+# User Uploaded Documents & Media (Patient EHR Data & Attachments)
+# -------------------------------------------------------------------------
+**/wwwroot/uploads/*
+!**/wwwroot/uploads/.gitkeep
+**/wwwroot/uploads/**/*
+!**/wwwroot/uploads/**/
+!**/wwwroot/uploads/**/.gitkeep
+
+# -------------------------------------------------------------------------
+# Local Databases & Storage Files
+# -------------------------------------------------------------------------
+*.mdf
+*.ldf
+*.ndf
+*.db
+*.sqlite
+*.sqlite3
+*.sqlite-shm
+*.sqlite-wal
+
+# -------------------------------------------------------------------------
+# Logs, Diagnostics & Profiling
+# -------------------------------------------------------------------------
+logs/
+**/logs/
+*.log
+*.dmp
+*.crash
+*.tlog
+
+# -------------------------------------------------------------------------
+# Test Results & Code Coverage
+# -------------------------------------------------------------------------
+TestResults/
+[Tt]est[Rr]esult*/
+*.trx
+coverage.*
+*.coverage
+*.coveragexml
+
+# -------------------------------------------------------------------------
+# NuGet Packages Cache
+# -------------------------------------------------------------------------
+*.nupkg
+**/packages/*
+!**/packages/build/
+*.nuget.props
+*.nuget.targets
+
+# -------------------------------------------------------------------------
+# Operating System Files & Temporary Buffers
+# -------------------------------------------------------------------------
+Thumbs.db
+ehthumbs.db
+ehthumbs_vista.db
+Desktop.ini
+$RECYCLE.BIN/
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+*~
+*.swp
+*.swo
+*.tmp
+*.bak
