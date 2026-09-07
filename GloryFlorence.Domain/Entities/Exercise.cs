@@ -13,5 +13,7 @@ namespace GloryFlorence.Domain.Entities
         public string VideoUrl { get; set; } = string.Empty;
         public string ImageUrl { get; set; } = string.Empty;
         public bool IsActive { get; set; } = true;
+
+        public virtual ICollection<ExercisePrescriptionDetail> PrescriptionDetails { get; set; } = new List<ExercisePrescriptionDetail>();
     }
 }

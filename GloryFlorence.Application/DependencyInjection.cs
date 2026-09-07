@@ -21,6 +21,7 @@ namespace GloryFlorence.Application
             services.AddScoped<IPatientAssessmentService, PatientAssessmentService>();
             services.AddScoped<ITreatmentPlanService, TreatmentPlanService>();
             services.AddScoped<ITreatmentSessionService, TreatmentSessionService>();
+            services.AddScoped<IExercisePrescriptionService, ExercisePrescriptionService>();
             services.AddScoped<IAuditLogService, AuditLogService>();
 
             return services;

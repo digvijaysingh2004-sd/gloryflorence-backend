@@ -22,5 +22,6 @@ namespace GloryFlorence.Domain.Entities
         public virtual ICollection<PatientAssessment> Assessments { get; set; } = new List<PatientAssessment>();
         public virtual ICollection<TreatmentPlan> TreatmentPlans { get; set; } = new List<TreatmentPlan>();
         public virtual ICollection<TreatmentSession> TreatmentSessions { get; set; } = new List<TreatmentSession>();
+        public virtual ICollection<ExercisePrescription> ExercisePrescriptions { get; set; } = new List<ExercisePrescription>();
     }
 }

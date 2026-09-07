@@ -29,6 +29,8 @@ namespace GloryFlorence.Application.Interfaces
         IRepository<PatientAssessment> PatientAssessments { get; }
         IRepository<TreatmentPlan> TreatmentPlans { get; }
         IRepository<TreatmentPlanDetail> TreatmentPlanDetails { get; }
+        IRepository<ExercisePrescription> ExercisePrescriptions { get; }
+        IRepository<ExercisePrescriptionDetail> ExercisePrescriptionDetails { get; }
         IRepository<AuditLog> AuditLogs { get; }
         Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
     }

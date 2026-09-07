@@ -25,5 +25,6 @@ namespace GloryFlorence.Domain.Entities
         // Navigation properties
         public virtual ICollection<TreatmentPlanDetail> TreatmentPlanDetails { get; set; } = new List<TreatmentPlanDetail>();
         public virtual ICollection<TreatmentSession> TreatmentSessions { get; set; } = new List<TreatmentSession>();
+        public virtual ICollection<ExercisePrescription> ExercisePrescriptions { get; set; } = new List<ExercisePrescription>();
     }
 }

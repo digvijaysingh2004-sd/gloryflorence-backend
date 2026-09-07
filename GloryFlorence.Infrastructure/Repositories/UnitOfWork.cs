@@ -32,6 +32,8 @@ namespace GloryFlorence.Infrastructure.Repositories
         private IRepository<PatientAssessment>? _patientAssessments;
         private IRepository<TreatmentPlan>? _treatmentPlans;
         private IRepository<TreatmentPlanDetail>? _treatmentPlanDetails;
+        private IRepository<ExercisePrescription>? _exercisePrescriptions;
+        private IRepository<ExercisePrescriptionDetail>? _exercisePrescriptionDetails;
         private IRepository<AuditLog>? _auditLogs;
 
         public UnitOfWork(ApplicationDbContext dbContext)
@@ -61,6 +63,8 @@ namespace GloryFlorence.Infrastructure.Repositories
         public IRepository<PatientAssessment> PatientAssessments => _patientAssessments ??= new Repository<PatientAssessment>(_dbContext);
         public IRepository<TreatmentPlan> TreatmentPlans => _treatmentPlans ??= new Repository<TreatmentPlan>(_dbContext);
         public IRepository<TreatmentPlanDetail> TreatmentPlanDetails => _treatmentPlanDetails ??= new Repository<TreatmentPlanDetail>(_dbContext);
+        public IRepository<ExercisePrescription> ExercisePrescriptions => _exercisePrescriptions ??= new Repository<ExercisePrescription>(_dbContext);
+        public IRepository<ExercisePrescriptionDetail> ExercisePrescriptionDetails => _exercisePrescriptionDetails ??= new Repository<ExercisePrescriptionDetail>(_dbContext);
         public IRepository<AuditLog> AuditLogs => _auditLogs ??= new Repository<AuditLog>(_dbContext);
 
         public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)

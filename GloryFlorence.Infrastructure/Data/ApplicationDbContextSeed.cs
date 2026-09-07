@@ -620,6 +620,91 @@ namespace GloryFlorence.Infrastructure.Data
                 }
             }
 
+            // Seed ExercisePrescriptions & ExercisePrescriptionDetails
+            if (!await context.ExercisePrescriptions.AnyAsync())
+            {
+                var john = await context.Patients.FirstOrDefaultAsync(p => p.FirstName == "John");
+                var jane = await context.Patients.FirstOrDefaultAsync(p => p.FirstName == "Jane");
+                var therapistUser = await context.Users.FirstOrDefaultAsync(u => u.Role == Roles.Physiotherapist);
+
+                var johnPlan = await context.TreatmentPlans.FirstOrDefaultAsync(tp => tp.PatientId == (john != null ? john.Id : 0));
+                var janePlan = await context.TreatmentPlans.FirstOrDefaultAsync(tp => tp.PatientId == (jane != null ? jane.Id : 0));
+
+                var pelvicTilt = await context.Exercises.FirstOrDefaultAsync(e => e.Name.Contains("Pelvic Tilt"));
+                var hamstringStretch = await context.Exercises.FirstOrDefaultAsync(e => e.Name.Contains("Hamstring"));
+                var quadSets = await context.Exercises.FirstOrDefaultAsync(e => e.Name.Contains("Quadriceps"));
+
+                if (john != null && therapistUser != null && johnPlan != null && pelvicTilt != null && hamstringStretch != null)
+                {
+                    var johnPrescription = new ExercisePrescription
+                    {
+                        PatientId = john.Id,
+                        PhysiotherapistId = therapistUser.Id,
+                        TreatmentPlanId = johnPlan.Id,
+                        PrescriptionDate = DateTime.UtcNow.AddDays(-2),
+                        Instructions = "Perform home lumbar stabilization and hamstring flexibility routine daily. Stop if sharp radiating pain occurs.",
+                        Status = "Active",
+                        CreatedAt = DateTime.UtcNow.AddDays(-2)
+                    };
+
+                    johnPrescription.PrescriptionDetails.Add(new ExercisePrescriptionDetail
+                    {
+                        ExerciseId = pelvicTilt.Id,
+                        Sets = 3,
+                        Repetitions = 10,
+                        HoldSeconds = 5,
+                        FrequencyPerDay = 2,
+                        DurationWeeks = 4,
+                        Instructions = "Focus on posterior pelvic tilt against firm surface; engage transverse abdominis.",
+                        CreatedAt = DateTime.UtcNow.AddDays(-2)
+                    });
+
+                    johnPrescription.PrescriptionDetails.Add(new ExercisePrescriptionDetail
+                    {
+                        ExerciseId = hamstringStretch.Id,
+                        Sets = 3,
+                        Repetitions = 1,
+                        HoldSeconds = 30,
+                        FrequencyPerDay = 2,
+                        DurationWeeks = 4,
+                        Instructions = "Gentle stretch behind thigh, no bouncing. Keep lumbar spine neutral.",
+                        CreatedAt = DateTime.UtcNow.AddDays(-2)
+                    });
+
+                    await context.ExercisePrescriptions.AddAsync(johnPrescription);
+                }
+
+                if (jane != null && therapistUser != null && janePlan != null && quadSets != null)
+                {
+                    var janePrescription = new ExercisePrescription
+                    {
+                        PatientId = jane.Id,
+                        PhysiotherapistId = therapistUser.Id,
+                        TreatmentPlanId = janePlan.Id,
+                        PrescriptionDate = DateTime.UtcNow.AddDays(-1),
+                        Instructions = "Follow progressive isometric knee strengthening. Apply cold pack for 15 minutes post-exercise.",
+                        Status = "Active",
+                        CreatedAt = DateTime.UtcNow.AddDays(-1)
+                    };
+
+                    janePrescription.PrescriptionDetails.Add(new ExercisePrescriptionDetail
+                    {
+                        ExerciseId = quadSets.Id,
+                        Sets = 3,
+                        Repetitions = 15,
+                        HoldSeconds = 5,
+                        FrequencyPerDay = 3,
+                        DurationWeeks = 6,
+                        Instructions = "Press popliteal fossa firmly downward against mat, maintain patellar glide.",
+                        CreatedAt = DateTime.UtcNow.AddDays(-1)
+                    });
+
+                    await context.ExercisePrescriptions.AddAsync(janePrescription);
+                }
+
+                await context.SaveChangesAsync();
+            }
+
             // Seed AuditLogs
             if (!await context.AuditLogs.AnyAsync())
             {
