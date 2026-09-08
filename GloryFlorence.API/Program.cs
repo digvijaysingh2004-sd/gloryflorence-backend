@@ -40,14 +40,14 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddControllers();
 
-// Configure CORS for React frontend (standard port 3000)
+// Configure CORS for React frontend (supports standard port 3000 and Vite port 5173)
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("CorsPolicy", policy =>
     {
         policy.AllowAnyHeader()
               .AllowAnyMethod()
-              .WithOrigins("http://localhost:3000")
+              .WithOrigins("http://localhost:3000", "http://localhost:5173", "http://127.0.0.1:3000", "http://127.0.0.1:5173")
               .AllowCredentials();
     });
 });
