@@ -14,8 +14,15 @@ namespace GloryFlorence.Infrastructure
             var connectionString = configuration.GetConnectionString("DefaultConnection");
 
             services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlServer(connectionString,
-                    b => b.MigrationsAssembly(typeof(ApplicationDbContext).Assembly.FullName)));
+            {
+                // SQL Server Configuration (commented out):
+                // options.UseSqlServer(connectionString,
+                //     b => b.MigrationsAssembly(typeof(ApplicationDbContext).Assembly.FullName));
+
+                // PostgreSQL Configuration:
+                options.UseNpgsql(connectionString,
+                    b => b.MigrationsAssembly(typeof(ApplicationDbContext).Assembly.FullName));
+            });
 
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));

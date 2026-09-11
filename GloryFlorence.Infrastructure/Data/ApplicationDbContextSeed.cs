@@ -12,80 +12,15 @@ namespace GloryFlorence.Infrastructure.Data
         public static async Task SeedAsync(ApplicationDbContext context)
         {
             // Auto-apply migrations if pending
-            if (context.Database.IsSqlServer() && (await context.Database.GetPendingMigrationsAsync()).Any())
+            // SQL Server check (commented out):
+            // if (context.Database.IsSqlServer() && (await context.Database.GetPendingMigrationsAsync()).Any())
+            if ((await context.Database.GetPendingMigrationsAsync()).Any())
             {
                 await context.Database.MigrateAsync();
             }
 
-            // Seed Roles
-            if (!await context.Roles.AnyAsync())
-            {
-                foreach (var roleName in Roles.All)
-                {
-                    await context.Roles.AddAsync(new Role
-                    {
-                        Name = roleName,
-                        Description = $"{roleName} role for the physiotherapy management system",
-                        CreatedAt = DateTime.UtcNow
-                    });
-                }
-                await context.SaveChangesAsync();
-            }
-
-            // Seed Default Users for all Roles
-            if (!await context.Users.AnyAsync())
-            {
-                var roleUserSpecs = new[]
-                {
-                    new { Username = "admin", Email = "admin@gloryflorence.com", Password = "Admin123!", Role = Roles.SuperAdmin, FirstName = "System", LastName = "Administrator" },
-                    new { Username = "clinicadmin", Email = "clinicadmin@gloryflorence.com", Password = "Admin123!", Role = Roles.Admin, FirstName = "Clinic", LastName = "Admin" },
-                    new { Username = "therapist", Email = "therapist@gloryflorence.com", Password = "Therapist123!", Role = Roles.Physiotherapist, FirstName = "John", LastName = "Therapist" },
-                    new { Username = "doctor", Email = "doctor@gloryflorence.com", Password = "Doctor123!", Role = Roles.Doctor, FirstName = "Sarah", LastName = "Doctor" },
-                    new { Username = "receptionist", Email = "receptionist@gloryflorence.com", Password = "Receptionist123!", Role = Roles.Receptionist, FirstName = "Mary", LastName = "Receptionist" },
-                    new { Username = "accountant", Email = "accountant@gloryflorence.com", Password = "Accountant123!", Role = Roles.Accountant, FirstName = "David", LastName = "Accountant" },
-                    new { Username = "patientuser", Email = "patientuser@gloryflorence.com", Password = "Patient123!", Role = Roles.Patient, FirstName = "Robert", LastName = "Patient" }
-                };
-
-                foreach (var spec in roleUserSpecs)
-                {
-                    var role = await context.Roles.FirstOrDefaultAsync(r => r.Name == spec.Role);
-                    if (role != null)
-                    {
-                        var user = new User
-                        {
-                            Username = spec.Username,
-                            Email = spec.Email,
-                            PasswordHash = BCrypt.Net.BCrypt.HashPassword(spec.Password),
-                            Role = spec.Role,
-                            IsActive = true,
-                            FirstName = spec.FirstName,
-                            LastName = spec.LastName,
-                            CreatedAt = DateTime.UtcNow
-                        };
-
-                        await context.Users.AddAsync(user);
-                        await context.SaveChangesAsync();
-
-                        var userRole = new UserRole
-                        {
-                            UserId = user.Id,
-                            RoleId = role.Id,
-                            CreatedAt = DateTime.UtcNow
-                        };
-                        await context.UserRoles.AddAsync(userRole);
-
-                        var userProfile = new UserProfile
-                        {
-                            UserId = user.Id,
-                            PhoneNumber = "1234567890",
-                            Bio = $"Default {spec.Role} Account",
-                            CreatedAt = DateTime.UtcNow
-                        };
-                        await context.UserProfiles.AddAsync(userProfile);
-                        await context.SaveChangesAsync();
-                    }
-                }
-            }
+            // Seed Roles and Default Users
+            await SeedUsersAsync(context);
 
             // Seed Genders
             if (!await context.Genders.AnyAsync())
@@ -755,6 +690,97 @@ namespace GloryFlorence.Infrastructure.Data
                 );
                 await context.SaveChangesAsync();
             }
+        }
+
+        public static async Task SeedRolesAsync(ApplicationDbContext context)
+        {
+            if (!await context.Roles.AnyAsync())
+            {
+                foreach (var roleName in Roles.All)
+                {
+                    await context.Roles.AddAsync(new Role
+                    {
+                        Name = roleName,
+                        Description = $"{roleName} role for the physiotherapy management system",
+                        CreatedAt = DateTime.UtcNow
+                    });
+                }
+                await context.SaveChangesAsync();
+            }
+        }
+
+        public static async Task SeedUsersAsync(ApplicationDbContext context)
+        {
+            // Seed Roles first as Users depend on Roles
+            await SeedRolesAsync(context);
+
+            var roleUserSpecs = new[]
+            {
+                new { Username = "admin", Email = "admin@gloryflorence.com", Password = "Admin123!", Role = Roles.SuperAdmin, FirstName = "System", LastName = "Administrator" },
+                new { Username = "clinicadmin", Email = "clinicadmin@gloryflorence.com", Password = "Admin123!", Role = Roles.Admin, FirstName = "Clinic", LastName = "Admin" },
+                new { Username = "therapist", Email = "therapist@gloryflorence.com", Password = "Therapist123!", Role = Roles.Physiotherapist, FirstName = "John", LastName = "Therapist" },
+                new { Username = "doctor", Email = "doctor@gloryflorence.com", Password = "Doctor123!", Role = Roles.Doctor, FirstName = "Sarah", LastName = "Doctor" },
+                new { Username = "receptionist", Email = "receptionist@gloryflorence.com", Password = "Receptionist123!", Role = Roles.Receptionist, FirstName = "Mary", LastName = "Receptionist" },
+                new { Username = "accountant", Email = "accountant@gloryflorence.com", Password = "Accountant123!", Role = Roles.Accountant, FirstName = "David", LastName = "Accountant" },
+                new { Username = "patientuser", Email = "patientuser@gloryflorence.com", Password = "Patient123!", Role = Roles.Patient, FirstName = "Robert", LastName = "Patient" }
+            };
+
+            foreach (var spec in roleUserSpecs)
+            {
+                var existingUser = await context.Users.FirstOrDefaultAsync(u => u.Username == spec.Username || u.Email == spec.Email);
+                if (existingUser != null)
+                {
+                    continue;
+                }
+
+                var role = await context.Roles.FirstOrDefaultAsync(r => r.Name == spec.Role);
+                if (role != null)
+                {
+                    var user = new User
+                    {
+                        Username = spec.Username,
+                        Email = spec.Email,
+                        PasswordHash = BCrypt.Net.BCrypt.HashPassword(spec.Password),
+                        Role = spec.Role,
+                        IsActive = true,
+                        FirstName = spec.FirstName,
+                        LastName = spec.LastName,
+                        CreatedAt = DateTime.UtcNow
+                    };
+
+                    await context.Users.AddAsync(user);
+                    await context.SaveChangesAsync();
+
+                    var userRole = new UserRole
+                    {
+                        UserId = user.Id,
+                        RoleId = role.Id,
+                        CreatedAt = DateTime.UtcNow
+                    };
+                    await context.UserRoles.AddAsync(userRole);
+
+                    var userProfile = new UserProfile
+                    {
+                        UserId = user.Id,
+                        PhoneNumber = "1234567890",
+                        Bio = $"Default {spec.Role} Account",
+                        CreatedAt = DateTime.UtcNow
+                    };
+                    await context.UserProfiles.AddAsync(userProfile);
+                    await context.SaveChangesAsync();
+                }
+            }
+        }
+
+        public static async Task SeedUsersOnlyAsync(ApplicationDbContext context)
+        {
+            // Auto-apply migrations if pending
+            if ((await context.Database.GetPendingMigrationsAsync()).Any())
+            {
+                await context.Database.MigrateAsync();
+            }
+
+            await SeedUsersAsync(context);
         }
     }
 }

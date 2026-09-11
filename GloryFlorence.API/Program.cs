@@ -89,6 +89,27 @@ builder.Services.AddSwaggerGen(options =>
 
 var app = builder.Build();
 
+// Handle command-line user-only seed execution
+if (args.Contains("--seed-users-only"))
+{
+    using var scope = app.Services.CreateScope();
+    var services = scope.ServiceProvider;
+    var logger = services.GetRequiredService<ILogger<Program>>();
+    try
+    {
+        logger.LogInformation("Starting User-only database seeding...");
+        var context = services.GetRequiredService<GloryFlorence.Infrastructure.Data.ApplicationDbContext>();
+        await GloryFlorence.Infrastructure.Data.ApplicationDbContextSeed.SeedUsersOnlyAsync(context);
+        logger.LogInformation("User table seeded successfully.");
+    }
+    catch (Exception ex)
+    {
+        logger.LogError(ex, "An error occurred during user table seeding.");
+        Environment.ExitCode = 1;
+    }
+    return;
+}
+
 // Seed database on startup
 using (var scope = app.Services.CreateScope())
 {
