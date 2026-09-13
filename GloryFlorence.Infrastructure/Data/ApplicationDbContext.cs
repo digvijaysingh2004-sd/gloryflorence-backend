@@ -38,6 +38,10 @@ namespace GloryFlorence.Infrastructure.Data
         public DbSet<ExercisePrescription> ExercisePrescriptions => Set<ExercisePrescription>();
         public DbSet<ExercisePrescriptionDetail> ExercisePrescriptionDetails => Set<ExercisePrescriptionDetail>();
         public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
+        public DbSet<Invoice> Invoices => Set<Invoice>();
+        public DbSet<InvoiceItem> InvoiceItems => Set<InvoiceItem>();
+        public DbSet<Payment> Payments => Set<Payment>();
+        public DbSet<ClinicSettings> ClinicSettings => Set<ClinicSettings>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

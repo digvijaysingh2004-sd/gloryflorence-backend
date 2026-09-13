@@ -173,11 +173,13 @@ namespace GloryFlorence.Infrastructure.Data
             if (!await context.AppointmentTypes.AnyAsync())
             {
                 await context.AppointmentTypes.AddRangeAsync(
+                    new AppointmentType { Name = "Initial Assessment", DurationMinutes = 60, Description = "Comprehensive initial physical assessment and intake evaluation" },
+                    new AppointmentType { Name = "Physiotherapy Session", DurationMinutes = 45, Description = "Standard individual physiotherapy treatment session" },
+                    new AppointmentType { Name = "Manual Therapy", DurationMinutes = 45, Description = "Hands-on joint and soft tissue mobilization session" },
+                    new AppointmentType { Name = "Sports Injury Rehab", DurationMinutes = 60, Description = "Specialized rehabilitation for athletic and exercise injuries" },
+                    new AppointmentType { Name = "Post-Op Rehabilitation", DurationMinutes = 60, Description = "Targeted post-surgical physical rehabilitation" },
                     new AppointmentType { Name = "Initial Consultation", DurationMinutes = 45, Description = "Comprehensive evaluation and intake assessment" },
-                    new AppointmentType { Name = "Standard Physiotherapy Session", DurationMinutes = 30, Description = "Standard one-on-one physiotherapy treatment" },
-                    new AppointmentType { Name = "Comprehensive Rehabilitation", DurationMinutes = 60, Description = "Extensive multi-modality rehab and exercise session" },
-                    new AppointmentType { Name = "Follow-up Assessment", DurationMinutes = 30, Description = "Progress review and routine reassessment" },
-                    new AppointmentType { Name = "Post-Operative Evaluation", DurationMinutes = 45, Description = "Specialized post-surgical recovery monitoring" }
+                    new AppointmentType { Name = "Standard Physiotherapy Session", DurationMinutes = 30, Description = "Standard one-on-one physiotherapy treatment" }
                 );
                 await context.SaveChangesAsync();
             }
@@ -689,6 +691,78 @@ namespace GloryFlorence.Infrastructure.Data
                     }
                 );
                 await context.SaveChangesAsync();
+            }
+
+            // Seed ClinicSettings
+            if (!await context.ClinicSettings.AnyAsync())
+            {
+                await context.ClinicSettings.AddAsync(new ClinicSettings
+                {
+                    ClinicName = "Glory Florence Physiotherapy & Rehab Clinic",
+                    Tagline = "Excellence in Physical Rehabilitation and Patient Care",
+                    Email = "contact@gloryflorence.com",
+                    Phone = "+1 (555) 987-6543",
+                    Address = "789 Health & Wellness Avenue",
+                    City = "Mumbai",
+                    State = "Maharashtra",
+                    Country = "India",
+                    PostalCode = "400001",
+                    TaxRegistrationNumber = "GSTIN27AABCU9603R1ZM",
+                    CurrencySymbol = "₹",
+                    WorkingHoursStart = new TimeSpan(8, 0, 0),
+                    WorkingHoursEnd = new TimeSpan(19, 0, 0),
+                    AppointmentSlotDurationMinutes = 30,
+                    AutoConfirmAppointments = true,
+                    EnableSmsNotifications = true,
+                    EnableEmailNotifications = true,
+                    UpdatedAt = DateTime.UtcNow
+                });
+                await context.SaveChangesAsync();
+            }
+
+            // Seed Invoices
+            if (!await context.Invoices.AnyAsync())
+            {
+                var john = await context.Patients.FirstOrDefaultAsync(p => p.FirstName == "John");
+                var jane = await context.Patients.FirstOrDefaultAsync(p => p.FirstName == "Jane");
+
+                if (john != null && jane != null)
+                {
+                    var johnInvoice = new Invoice
+                    {
+                        InvoiceNumber = "INV-20260901-1001",
+                        PatientId = john.Id,
+                        Amount = 125.00m,
+                        PaidAmount = 125.00m,
+                        BalanceAmount = 0.00m,
+                        Status = "Paid",
+                        InvoiceDate = DateTime.UtcNow.AddDays(-5),
+                        DueDate = DateTime.UtcNow.AddDays(10),
+                        Notes = "Payment received in full via Credit Card",
+                        CreatedAt = DateTime.UtcNow.AddDays(-5)
+                    };
+                    johnInvoice.InvoiceItems.Add(new InvoiceItem { Description = "Initial Physical Assessment", Quantity = 1, UnitPrice = 75.00m, TotalAmount = 75.00m });
+                    johnInvoice.InvoiceItems.Add(new InvoiceItem { Description = "Manual Therapy Session", Quantity = 1, UnitPrice = 50.00m, TotalAmount = 50.00m });
+                    johnInvoice.Payments.Add(new Payment { AmountPaid = 125.00m, PaymentMethod = "Credit Card", TransactionReference = "TXN-88493021", PaymentDate = DateTime.UtcNow.AddDays(-4), Notes = "Paid at reception" });
+
+                    var janeInvoice = new Invoice
+                    {
+                        InvoiceNumber = "INV-20260902-1002",
+                        PatientId = jane.Id,
+                        Amount = 90.00m,
+                        PaidAmount = 0.00m,
+                        BalanceAmount = 90.00m,
+                        Status = "Unpaid",
+                        InvoiceDate = DateTime.UtcNow.AddDays(-2),
+                        DueDate = DateTime.UtcNow.AddDays(12),
+                        Notes = "Pending insurance claim processing",
+                        CreatedAt = DateTime.UtcNow.AddDays(-2)
+                    };
+                    janeInvoice.InvoiceItems.Add(new InvoiceItem { Description = "Post-Op Knee Rehabilitation Session", Quantity = 2, UnitPrice = 45.00m, TotalAmount = 90.00m });
+
+                    await context.Invoices.AddRangeAsync(johnInvoice, janeInvoice);
+                    await context.SaveChangesAsync();
+                }
             }
         }
 

@@ -39,5 +39,18 @@ namespace GloryFlorence.API.Controllers
             var user = await _userService.GetByUsernameAsync(_currentUserService.Username, cancellationToken);
             return Ok(ApiResponse<UserDto>.SuccessResponse(user, "Current user profile retrieved successfully."));
         }
+
+        [HttpPut("profile")]
+        [Authorize]
+        public async Task<ActionResult<ApiResponse<UserDto>>> UpdateProfile([FromBody] UpdateUserProfileDto updateProfileDto, CancellationToken cancellationToken)
+        {
+            if (!_currentUserService.IsAuthenticated || string.IsNullOrEmpty(_currentUserService.Username))
+            {
+                return Unauthorized(ApiResponse<UserDto>.FailureResponse("User is not authenticated."));
+            }
+
+            var updatedUser = await _userService.UpdateProfileAsync(_currentUserService.Username, updateProfileDto, cancellationToken);
+            return Ok(ApiResponse<UserDto>.SuccessResponse(updatedUser, "User profile updated successfully."));
+        }
     }
 }

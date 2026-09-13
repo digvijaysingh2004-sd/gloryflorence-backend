@@ -39,7 +39,7 @@ namespace GloryFlorence.Application.Validators
                 .GreaterThan(0).WithMessage("Valid physiotherapist ID is required.");
 
             RuleFor(x => x.AssessmentId)
-                .GreaterThan(0).WithMessage("Valid assessment ID is required.");
+                .GreaterThanOrEqualTo(0).WithMessage("Valid assessment ID is required.");
 
             RuleFor(x => x.StartDate)
                 .NotEmpty().WithMessage("Start date is required.");

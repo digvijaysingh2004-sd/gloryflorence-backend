@@ -31,6 +31,9 @@ namespace GloryFlorence.Domain.Entities
         public string TreatmentPerformed { get; set; } = string.Empty;
         public string Recommendations { get; set; } = string.Empty;
         public string Notes { get; set; } = string.Empty;
+        public string? ModalitiesConducted { get; set; }
+        public string? PatientTolerance { get; set; }
+        public string? NextSessionPlan { get; set; }
 
         // Navigation properties
         public virtual ICollection<PatientAssessment> PatientAssessments { get; set; } = new List<PatientAssessment>();

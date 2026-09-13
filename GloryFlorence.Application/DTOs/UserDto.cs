@@ -11,6 +11,7 @@ namespace GloryFlorence.Application.DTOs
         public bool IsActive { get; set; }
         public string FirstName { get; set; } = string.Empty;
         public string LastName { get; set; } = string.Empty;
+        public string Name => string.IsNullOrWhiteSpace($"{FirstName} {LastName}".Trim()) ? Username : $"{FirstName} {LastName}".Trim();
         public DateTime CreatedAt { get; set; }
     }
 }

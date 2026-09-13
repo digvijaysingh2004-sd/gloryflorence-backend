@@ -57,18 +57,22 @@ namespace GloryFlorence.API.Controllers
         }
 
         [HttpPut("{id:int}")]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(ApiResponse<PatientDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Update(int id, [FromBody] UpdatePatientDto updatePatientDto, CancellationToken cancellationToken)
         {
-            if (id != updatePatientDto.Id)
+            if (updatePatientDto.Id == 0)
+            {
+                updatePatientDto.Id = id;
+            }
+            else if (id != updatePatientDto.Id)
             {
                 return BadRequest(ApiResponse<object>.FailureResponse("ID in route does not match ID in body."));
             }
 
-            await _patientService.UpdatePatientAsync(updatePatientDto, cancellationToken);
-            return NoContent();
+            var updatedPatient = await _patientService.UpdatePatientAsync(updatePatientDto, cancellationToken);
+            return Ok(ApiResponse<PatientDto>.SuccessResponse(updatedPatient, "Patient updated successfully."));
         }
 
         [HttpDelete("{id:int}")]
@@ -129,11 +133,16 @@ namespace GloryFlorence.API.Controllers
         }
 
         [HttpPost("{id:int}/documents/upload")]
-        [Consumes("multipart/form-data")]
+        [Consumes("multipart/form-data", "application/json")]
         [ProducesResponseType(typeof(ApiResponse<PatientDocumentDto>), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> UploadDocument(int id, [FromForm] UploadDocumentRequest request, CancellationToken cancellationToken)
+        public async Task<IActionResult> UploadDocument(int id, [FromForm] UploadDocumentRequest? request, CancellationToken cancellationToken)
         {
+            if (!Request.HasFormContentType)
+            {
+                return BadRequest(ApiResponse<object>.FailureResponse("Content-Type must be 'multipart/form-data' with a file payload."));
+            }
+
             if (request?.File == null || request.File.Length == 0)
             {
                 return BadRequest(ApiResponse<object>.FailureResponse("No file was uploaded or the file is empty."));

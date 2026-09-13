@@ -10,8 +10,8 @@ namespace GloryFlorence.Application.Interfaces
         Task<PagedResult<TreatmentSessionDto>> GetTreatmentSessionsAsync(TreatmentSessionFilterDto filter, CancellationToken cancellationToken = default);
         Task<TreatmentSessionDto?> GetTreatmentSessionByIdAsync(int id, CancellationToken cancellationToken = default);
         Task<TreatmentSessionDto> CreateTreatmentSessionAsync(CreateTreatmentSessionDto dto, CancellationToken cancellationToken = default);
-        Task UpdateTreatmentSessionAsync(int id, UpdateTreatmentSessionDto dto, CancellationToken cancellationToken = default);
-        Task<TreatmentSessionDto> CompleteTreatmentSessionAsync(int id, CompleteTreatmentSessionDto dto, CancellationToken cancellationToken = default);
+        Task<TreatmentSessionDto> UpdateTreatmentSessionAsync(int id, UpdateTreatmentSessionDto dto, CancellationToken cancellationToken = default);
+        Task<TreatmentSessionDto> CompleteTreatmentSessionAsync(int id, CompleteTreatmentSessionDto? dto, CancellationToken cancellationToken = default);
         Task DeleteTreatmentSessionAsync(int id, CancellationToken cancellationToken = default);
     }
 }

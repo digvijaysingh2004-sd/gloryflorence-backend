@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace GloryFlorence.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260911145905_Initial Migration")]
+    [Migration("20260913143436_Initial Migration")]
     partial class InitialMigration
     {
         /// <inheritdoc />
@@ -96,6 +96,9 @@ namespace GloryFlorence.Infrastructure.Migrations
                     b.Property<TimeSpan>("EndTime")
                         .HasColumnType("interval");
 
+                    b.Property<decimal?>("Fee")
+                        .HasColumnType("numeric");
+
                     b.Property<string>("Notes")
                         .IsRequired()
                         .HasMaxLength(1000)
@@ -111,6 +114,9 @@ namespace GloryFlorence.Infrastructure.Migrations
                         .IsRequired()
                         .HasMaxLength(250)
                         .HasColumnType("character varying(250)");
+
+                    b.Property<string>("Room")
+                        .HasColumnType("text");
 
                     b.Property<TimeSpan>("StartTime")
                         .HasColumnType("interval");
@@ -326,6 +332,74 @@ namespace GloryFlorence.Infrastructure.Migrations
                     b.ToTable("Cities", (string)null);
                 });
 
+            modelBuilder.Entity("GloryFlorence.Domain.Entities.ClinicSettings", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Address")
+                        .HasColumnType("text");
+
+                    b.Property<int>("AppointmentSlotDurationMinutes")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("AutoConfirmAppointments")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("City")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ClinicName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Country")
+                        .HasColumnType("text");
+
+                    b.Property<string>("CurrencySymbol")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Email")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("EnableEmailNotifications")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("EnableSmsNotifications")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Phone")
+                        .HasColumnType("text");
+
+                    b.Property<string>("PostalCode")
+                        .HasColumnType("text");
+
+                    b.Property<string>("State")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Tagline")
+                        .HasColumnType("text");
+
+                    b.Property<string>("TaxRegistrationNumber")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<TimeSpan>("WorkingHoursEnd")
+                        .HasColumnType("interval");
+
+                    b.Property<TimeSpan>("WorkingHoursStart")
+                        .HasColumnType("interval");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ClinicSettings");
+                });
+
             modelBuilder.Entity("GloryFlorence.Domain.Entities.Country", b =>
                 {
                     b.Property<int>("Id")
@@ -423,6 +497,9 @@ namespace GloryFlorence.Infrastructure.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("Diagnosis")
+                        .HasColumnType("text");
+
                     b.Property<string>("Instructions")
                         .IsRequired()
                         .HasMaxLength(2000)
@@ -443,6 +520,9 @@ namespace GloryFlorence.Infrastructure.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)")
                         .HasDefaultValue("Active");
+
+                    b.Property<string>("TargetGoal")
+                        .HasColumnType("text");
 
                     b.Property<int>("TreatmentPlanId")
                         .HasColumnType("integer");
@@ -542,6 +622,104 @@ namespace GloryFlorence.Infrastructure.Migrations
                     b.ToTable("Genders", (string)null);
                 });
 
+            modelBuilder.Entity("GloryFlorence.Domain.Entities.Invoice", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("numeric");
+
+                    b.Property<decimal>("BalanceAmount")
+                        .HasColumnType("numeric");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<decimal>("DiscountAmount")
+                        .HasColumnType("numeric");
+
+                    b.Property<DateTime?>("DueDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("InvoiceDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("InvoiceNumber")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("text");
+
+                    b.Property<decimal>("PaidAmount")
+                        .HasColumnType("numeric");
+
+                    b.Property<int>("PatientId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<decimal>("SubTotal")
+                        .HasColumnType("numeric");
+
+                    b.Property<decimal>("TaxAmount")
+                        .HasColumnType("numeric");
+
+                    b.Property<decimal>("TotalAmount")
+                        .HasColumnType("numeric");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PatientId");
+
+                    b.ToTable("Invoices");
+                });
+
+            modelBuilder.Entity("GloryFlorence.Domain.Entities.InvoiceItem", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("InvoiceId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal>("TotalAmount")
+                        .HasColumnType("numeric");
+
+                    b.Property<int?>("TreatmentTypeId")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal>("UnitPrice")
+                        .HasColumnType("numeric");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("InvoiceId");
+
+                    b.HasIndex("TreatmentTypeId");
+
+                    b.ToTable("InvoiceItems");
+                });
+
             modelBuilder.Entity("GloryFlorence.Domain.Entities.Patient", b =>
                 {
                     b.Property<int>("Id")
@@ -555,6 +733,21 @@ namespace GloryFlorence.Infrastructure.Migrations
                         .HasMaxLength(250)
                         .HasColumnType("character varying(250)");
 
+                    b.Property<string>("BloodGroup")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("BloodPressure")
+                        .HasColumnType("text");
+
+                    b.Property<string>("City")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Country")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -566,6 +759,14 @@ namespace GloryFlorence.Infrastructure.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
+                    b.Property<string>("EmergencyContactName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("EmergencyContactPhone")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<string>("FirstName")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -576,23 +777,53 @@ namespace GloryFlorence.Infrastructure.Migrations
                         .HasMaxLength(10)
                         .HasColumnType("character varying(10)");
 
+                    b.Property<int?>("HeartRate")
+                        .HasColumnType("integer");
+
+                    b.Property<double?>("HeightCm")
+                        .HasColumnType("double precision");
+
                     b.Property<string>("LastName")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
+
+                    b.Property<string>("MRN")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("MedicalHistory")
                         .IsRequired()
                         .HasMaxLength(1000)
                         .HasColumnType("character varying(1000)");
 
+                    b.Property<double?>("OxygenSaturation")
+                        .HasColumnType("double precision");
+
                     b.Property<string>("PhoneNumber")
                         .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)");
 
+                    b.Property<string>("State")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<double?>("Temperature")
+                        .HasColumnType("double precision");
+
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("VitalsUpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<double?>("WeightKg")
+                        .HasColumnType("double precision");
 
                     b.HasKey("Id");
 
@@ -606,6 +837,9 @@ namespace GloryFlorence.Infrastructure.Migrations
                         .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("AggravatingFactors")
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("AssessmentDate")
                         .HasColumnType("timestamp with time zone");
@@ -633,8 +867,20 @@ namespace GloryFlorence.Infrastructure.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
 
+                    b.Property<string>("FunctionalLimitations")
+                        .HasColumnType("text");
+
+                    b.Property<string>("LongTermGoals")
+                        .HasColumnType("text");
+
                     b.Property<int>("PainLevel")
                         .HasColumnType("integer");
+
+                    b.Property<string>("PainLocation")
+                        .HasColumnType("text");
+
+                    b.Property<string>("PainType")
+                        .HasColumnType("text");
 
                     b.Property<int>("PatientId")
                         .HasColumnType("integer");
@@ -642,13 +888,31 @@ namespace GloryFlorence.Infrastructure.Migrations
                     b.Property<int>("PhysiotherapistId")
                         .HasColumnType("integer");
 
+                    b.Property<string>("PostureAndGait")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Prognosis")
+                        .HasColumnType("text");
+
                     b.Property<string>("Recommendations")
                         .IsRequired()
                         .HasMaxLength(2000)
                         .HasColumnType("character varying(2000)");
 
+                    b.Property<string>("RecommendedFrequency")
+                        .HasColumnType("text");
+
+                    b.Property<string>("RelievingFactors")
+                        .HasColumnType("text");
+
+                    b.Property<string>("RomFindings")
+                        .HasColumnType("text");
+
                     b.Property<int?>("SessionId")
                         .HasColumnType("integer");
+
+                    b.Property<string>("ShortTermGoals")
+                        .HasColumnType("text");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -754,6 +1018,40 @@ namespace GloryFlorence.Infrastructure.Migrations
                     b.HasIndex("PatientId");
 
                     b.ToTable("PatientMedicalHistory", (string)null);
+                });
+
+            modelBuilder.Entity("GloryFlorence.Domain.Entities.Payment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("AmountPaid")
+                        .HasColumnType("numeric");
+
+                    b.Property<int>("InvoiceId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("PaymentDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("PaymentMethod")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("TransactionReference")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("InvoiceId");
+
+                    b.ToTable("Payments");
                 });
 
             modelBuilder.Entity("GloryFlorence.Domain.Entities.Role", b =>
@@ -956,11 +1254,14 @@ namespace GloryFlorence.Infrastructure.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("AssessmentId")
+                    b.Property<int?>("AssessmentId")
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Diagnosis")
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("ExpectedEndDate")
                         .HasColumnType("timestamp with time zone");
@@ -993,6 +1294,9 @@ namespace GloryFlorence.Infrastructure.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)")
                         .HasDefaultValue("Draft");
+
+                    b.Property<string>("TreatmentFrequency")
+                        .HasColumnType("text");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -1075,6 +1379,12 @@ namespace GloryFlorence.Infrastructure.Migrations
                     b.Property<TimeSpan>("EndTime")
                         .HasColumnType("interval");
 
+                    b.Property<string>("ModalitiesConducted")
+                        .HasColumnType("text");
+
+                    b.Property<string>("NextSessionPlan")
+                        .HasColumnType("text");
+
                     b.Property<string>("Notes")
                         .IsRequired()
                         .HasMaxLength(1000)
@@ -1088,6 +1398,9 @@ namespace GloryFlorence.Infrastructure.Migrations
 
                     b.Property<int>("PatientId")
                         .HasColumnType("integer");
+
+                    b.Property<string>("PatientTolerance")
+                        .HasColumnType("text");
 
                     b.Property<int>("PhysiotherapistId")
                         .HasColumnType("integer");
@@ -1456,6 +1769,34 @@ namespace GloryFlorence.Infrastructure.Migrations
                     b.Navigation("Prescription");
                 });
 
+            modelBuilder.Entity("GloryFlorence.Domain.Entities.Invoice", b =>
+                {
+                    b.HasOne("GloryFlorence.Domain.Entities.Patient", "Patient")
+                        .WithMany("Invoices")
+                        .HasForeignKey("PatientId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Patient");
+                });
+
+            modelBuilder.Entity("GloryFlorence.Domain.Entities.InvoiceItem", b =>
+                {
+                    b.HasOne("GloryFlorence.Domain.Entities.Invoice", "Invoice")
+                        .WithMany("InvoiceItems")
+                        .HasForeignKey("InvoiceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("GloryFlorence.Domain.Entities.TreatmentType", "TreatmentType")
+                        .WithMany()
+                        .HasForeignKey("TreatmentTypeId");
+
+                    b.Navigation("Invoice");
+
+                    b.Navigation("TreatmentType");
+                });
+
             modelBuilder.Entity("GloryFlorence.Domain.Entities.PatientAssessment", b =>
                 {
                     b.HasOne("GloryFlorence.Domain.Entities.Patient", "Patient")
@@ -1504,6 +1845,17 @@ namespace GloryFlorence.Infrastructure.Migrations
                     b.Navigation("Patient");
                 });
 
+            modelBuilder.Entity("GloryFlorence.Domain.Entities.Payment", b =>
+                {
+                    b.HasOne("GloryFlorence.Domain.Entities.Invoice", "Invoice")
+                        .WithMany("Payments")
+                        .HasForeignKey("InvoiceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Invoice");
+                });
+
             modelBuilder.Entity("GloryFlorence.Domain.Entities.State", b =>
                 {
                     b.HasOne("GloryFlorence.Domain.Entities.Country", "Country")
@@ -1520,8 +1872,7 @@ namespace GloryFlorence.Infrastructure.Migrations
                     b.HasOne("GloryFlorence.Domain.Entities.PatientAssessment", "Assessment")
                         .WithMany("TreatmentPlans")
                         .HasForeignKey("AssessmentId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("GloryFlorence.Domain.Entities.Patient", "Patient")
                         .WithMany("TreatmentPlans")
@@ -1656,6 +2007,13 @@ namespace GloryFlorence.Infrastructure.Migrations
                     b.Navigation("PrescriptionDetails");
                 });
 
+            modelBuilder.Entity("GloryFlorence.Domain.Entities.Invoice", b =>
+                {
+                    b.Navigation("InvoiceItems");
+
+                    b.Navigation("Payments");
+                });
+
             modelBuilder.Entity("GloryFlorence.Domain.Entities.Patient", b =>
                 {
                     b.Navigation("Appointments");
@@ -1665,6 +2023,8 @@ namespace GloryFlorence.Infrastructure.Migrations
                     b.Navigation("Documents");
 
                     b.Navigation("ExercisePrescriptions");
+
+                    b.Navigation("Invoices");
 
                     b.Navigation("MedicalHistories");
 

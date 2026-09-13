@@ -35,6 +35,10 @@ namespace GloryFlorence.Infrastructure.Repositories
         private IRepository<ExercisePrescription>? _exercisePrescriptions;
         private IRepository<ExercisePrescriptionDetail>? _exercisePrescriptionDetails;
         private IRepository<AuditLog>? _auditLogs;
+        private IRepository<Invoice>? _invoices;
+        private IRepository<InvoiceItem>? _invoiceItems;
+        private IRepository<Payment>? _payments;
+        private IRepository<ClinicSettings>? _clinicSettings;
 
         public UnitOfWork(ApplicationDbContext dbContext)
         {
@@ -66,6 +70,10 @@ namespace GloryFlorence.Infrastructure.Repositories
         public IRepository<ExercisePrescription> ExercisePrescriptions => _exercisePrescriptions ??= new Repository<ExercisePrescription>(_dbContext);
         public IRepository<ExercisePrescriptionDetail> ExercisePrescriptionDetails => _exercisePrescriptionDetails ??= new Repository<ExercisePrescriptionDetail>(_dbContext);
         public IRepository<AuditLog> AuditLogs => _auditLogs ??= new Repository<AuditLog>(_dbContext);
+        public IRepository<Invoice> Invoices => _invoices ??= new Repository<Invoice>(_dbContext);
+        public IRepository<InvoiceItem> InvoiceItems => _invoiceItems ??= new Repository<InvoiceItem>(_dbContext);
+        public IRepository<Payment> Payments => _payments ??= new Repository<Payment>(_dbContext);
+        public IRepository<ClinicSettings> ClinicSettings => _clinicSettings ??= new Repository<ClinicSettings>(_dbContext);
 
         public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {

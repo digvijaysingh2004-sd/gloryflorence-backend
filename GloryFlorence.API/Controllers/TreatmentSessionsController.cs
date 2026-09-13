@@ -55,8 +55,13 @@ namespace GloryFlorence.API.Controllers
         [HttpPost]
         [ProducesResponseType(typeof(ApiResponse<TreatmentSessionDto>), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> Create([FromBody] CreateTreatmentSessionDto dto, CancellationToken cancellationToken)
+        public async Task<IActionResult> Create([FromBody] CreateTreatmentSessionDto? dto, CancellationToken cancellationToken)
         {
+            if (dto == null)
+            {
+                return BadRequest(ApiResponse<object>.FailureResponse("Request body is required."));
+            }
+
             var validationResult = await _createValidator.ValidateAsync(dto, cancellationToken);
             if (!validationResult.IsValid)
             {
@@ -68,27 +73,33 @@ namespace GloryFlorence.API.Controllers
         }
 
         [HttpPut("{id:int}")]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(ApiResponse<TreatmentSessionDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> Update(int id, [FromBody] UpdateTreatmentSessionDto dto, CancellationToken cancellationToken)
+        public async Task<IActionResult> Update(int id, [FromBody] UpdateTreatmentSessionDto? dto, CancellationToken cancellationToken)
         {
+            if (dto == null)
+            {
+                return BadRequest(ApiResponse<object>.FailureResponse("Request body is required."));
+            }
+
             var validationResult = await _updateValidator.ValidateAsync(dto, cancellationToken);
             if (!validationResult.IsValid)
             {
                 throw new ValidationException(validationResult.Errors);
             }
 
-            await _sessionService.UpdateTreatmentSessionAsync(id, dto, cancellationToken);
-            return NoContent();
+            var updated = await _sessionService.UpdateTreatmentSessionAsync(id, dto, cancellationToken);
+            return Ok(ApiResponse<TreatmentSessionDto>.SuccessResponse(updated, "Treatment session updated successfully."));
         }
 
         [HttpPost("{id:int}/complete")]
         [ProducesResponseType(typeof(ApiResponse<TreatmentSessionDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> Complete(int id, [FromBody] CompleteTreatmentSessionDto dto, CancellationToken cancellationToken)
+        public async Task<IActionResult> Complete(int id, [FromBody] CompleteTreatmentSessionDto? dto, CancellationToken cancellationToken)
         {
+            dto ??= new CompleteTreatmentSessionDto();
             var validationResult = await _completeValidator.ValidateAsync(dto, cancellationToken);
             if (!validationResult.IsValid)
             {
@@ -109,12 +120,35 @@ namespace GloryFlorence.API.Controllers
         }
 
         [HttpGet("~/api/patients/{patientId:int}/treatment-sessions")]
+        [HttpGet("~/api/patients/{patientId:int}/sessions")]
         [ProducesResponseType(typeof(ApiResponse<PagedResult<TreatmentSessionDto>>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetByPatient(int patientId, [FromQuery] TreatmentSessionFilterDto filter, CancellationToken cancellationToken)
         {
             filter.PatientId = patientId;
             var result = await _sessionService.GetTreatmentSessionsAsync(filter, cancellationToken);
             return Ok(ApiResponse<PagedResult<TreatmentSessionDto>>.SuccessResponse(result, "Treatment sessions retrieved successfully."));
+        }
+
+        [HttpPost("~/api/patients/{patientId:int}/treatment-sessions")]
+        [HttpPost("~/api/patients/{patientId:int}/sessions")]
+        [ProducesResponseType(typeof(ApiResponse<TreatmentSessionDto>), StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> CreateForPatient(int patientId, [FromBody] CreateTreatmentSessionDto? dto, CancellationToken cancellationToken)
+        {
+            if (dto == null)
+            {
+                return BadRequest(ApiResponse<object>.FailureResponse("Request body is required."));
+            }
+
+            dto.PatientId = patientId;
+            var validationResult = await _createValidator.ValidateAsync(dto, cancellationToken);
+            if (!validationResult.IsValid)
+            {
+                throw new ValidationException(validationResult.Errors);
+            }
+
+            var created = await _sessionService.CreateTreatmentSessionAsync(dto, cancellationToken);
+            return CreatedAtAction(nameof(GetById), new { id = created.Id }, ApiResponse<TreatmentSessionDto>.SuccessResponse(created, "Treatment session created successfully."));
         }
 
         [HttpGet("~/api/appointments/{appointmentId:int}/treatment-sessions")]

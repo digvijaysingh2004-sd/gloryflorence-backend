@@ -45,7 +45,7 @@ namespace GloryFlorence.Application.Validators
                 .GreaterThan(0).WithMessage("Valid physiotherapist ID is required.");
 
             RuleFor(x => x.TreatmentPlanId)
-                .GreaterThan(0).WithMessage("Valid treatment plan ID is required.");
+                .GreaterThanOrEqualTo(0).WithMessage("Valid treatment plan ID is required.");
 
             RuleFor(x => x.PrescriptionDate)
                 .NotEmpty().WithMessage("Prescription date is required.");
@@ -76,7 +76,7 @@ namespace GloryFlorence.Application.Validators
                 .GreaterThan(0).WithMessage("Valid physiotherapist ID is required.");
 
             RuleFor(x => x.TreatmentPlanId)
-                .GreaterThan(0).WithMessage("Valid treatment plan ID is required.");
+                .GreaterThanOrEqualTo(0).WithMessage("Valid treatment plan ID is required.");
 
             RuleFor(x => x.PrescriptionDate)
                 .NotEmpty().WithMessage("Prescription date is required.");

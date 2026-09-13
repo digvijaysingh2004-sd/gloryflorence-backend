@@ -23,6 +23,8 @@ namespace GloryFlorence.Domain.Entities
         public string Reason { get; set; } = string.Empty;
         public string Notes { get; set; } = string.Empty;
         public string? CancellationReason { get; set; }
+        public string? Room { get; set; }
+        public decimal? Fee { get; set; }
 
         // Optional legacy TherapistId for backwards-compatibility
         public int? TherapistId { get; set; }

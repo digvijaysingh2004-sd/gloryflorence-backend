@@ -158,6 +158,8 @@ namespace GloryFlorence.Application.Services
                 Status = "Scheduled",
                 Reason = dto.Reason,
                 Notes = dto.Notes,
+                Room = dto.Room,
+                Fee = dto.Fee,
                 CreatedAt = DateTime.UtcNow
             };
 
@@ -223,6 +225,8 @@ namespace GloryFlorence.Application.Services
             entity.Status = string.IsNullOrWhiteSpace(dto.Status) ? entity.Status : dto.Status;
             entity.Reason = dto.Reason;
             entity.Notes = dto.Notes;
+            if (dto.Room != null) entity.Room = dto.Room;
+            if (dto.Fee.HasValue) entity.Fee = dto.Fee;
             entity.UpdatedAt = DateTime.UtcNow;
 
             _unitOfWork.Appointments.Update(entity);
@@ -231,6 +235,22 @@ namespace GloryFlorence.Application.Services
 
         public async Task RescheduleAppointmentAsync(int id, RescheduleAppointmentDto dto, CancellationToken cancellationToken = default)
         {
+            if (dto == null)
+            {
+                throw new BadRequestException("Reschedule data is required.");
+            }
+
+            if (dto.NewStartTime == TimeSpan.Zero && dto.NewEndTime == TimeSpan.Zero)
+            {
+                dto.NewStartTime = new TimeSpan(9, 0, 0);
+                dto.NewEndTime = new TimeSpan(9, 30, 0);
+            }
+
+            if (dto.NewAppointmentDate == default)
+            {
+                dto.NewAppointmentDate = DateTime.Today;
+            }
+
             if (dto.NewStartTime >= dto.NewEndTime)
             {
                 throw new InvalidOperationException("New start time must be earlier than new end time.");
@@ -273,7 +293,7 @@ namespace GloryFlorence.Application.Services
             await _unitOfWork.SaveChangesAsync(cancellationToken);
         }
 
-        public async Task CancelAppointmentAsync(int id, CancelAppointmentDto dto, CancellationToken cancellationToken = default)
+        public async Task CancelAppointmentAsync(int id, CancelAppointmentDto? dto, CancellationToken cancellationToken = default)
         {
             var entity = await _unitOfWork.Appointments.GetByIdAsync(id, cancellationToken);
             if (entity == null)
@@ -282,7 +302,7 @@ namespace GloryFlorence.Application.Services
             }
 
             entity.Status = "Cancelled";
-            entity.CancellationReason = dto.CancellationReason;
+            entity.CancellationReason = dto?.CancellationReason ?? "Cancelled";
             entity.UpdatedAt = DateTime.UtcNow;
 
             _unitOfWork.Appointments.Update(entity);
@@ -296,6 +316,9 @@ namespace GloryFlorence.Application.Services
             {
                 throw new NotFoundException(nameof(Appointment), id);
             }
+
+            var sessions = await _unitOfWork.TreatmentSessions.FindAsync(s => s.AppointmentId == id, cancellationToken);
+            foreach (var s in sessions) _unitOfWork.TreatmentSessions.Delete(s);
 
             _unitOfWork.Appointments.Delete(entity);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
@@ -323,6 +346,8 @@ namespace GloryFlorence.Application.Services
                 Reason = a.Reason,
                 Notes = a.Notes,
                 CancellationReason = a.CancellationReason,
+                Room = a.Room,
+                Fee = a.Fee,
                 CreatedAt = a.CreatedAt,
                 UpdatedAt = a.UpdatedAt
             };

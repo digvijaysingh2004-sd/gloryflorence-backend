@@ -31,13 +31,17 @@ namespace GloryFlorence.Application.DTOs
         public string PatientName { get; set; } = string.Empty;
         public int PhysiotherapistId { get; set; }
         public string PhysiotherapistName { get; set; } = string.Empty;
-        public int AssessmentId { get; set; }
+        public int? AssessmentId { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime ExpectedEndDate { get; set; }
+        public DateTime EndDate => ExpectedEndDate;
         public int NumberOfSessions { get; set; }
         public string Goal { get; set; } = string.Empty;
+        public string Goals => Goal;
         public string Notes { get; set; } = string.Empty;
         public string Status { get; set; } = string.Empty;
+        public string? Diagnosis { get; set; }
+        public string? TreatmentFrequency { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
         public List<TreatmentPlanDetailDto> Details { get; set; } = new List<TreatmentPlanDetailDto>();
@@ -47,13 +51,15 @@ namespace GloryFlorence.Application.DTOs
     {
         public int PatientId { get; set; }
         public int PhysiotherapistId { get; set; }
-        public int AssessmentId { get; set; }
+        public int? AssessmentId { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime ExpectedEndDate { get; set; }
         public int NumberOfSessions { get; set; }
         public string Goal { get; set; } = string.Empty;
         public string Notes { get; set; } = string.Empty;
         public string Status { get; set; } = "Draft"; // Draft, Active, Completed, Discontinued
+        public string? Diagnosis { get; set; }
+        public string? TreatmentFrequency { get; set; }
         public List<CreateTreatmentPlanDetailDto> Details { get; set; } = new List<CreateTreatmentPlanDetailDto>();
     }
 
@@ -66,6 +72,8 @@ namespace GloryFlorence.Application.DTOs
         public string Goal { get; set; } = string.Empty;
         public string Notes { get; set; } = string.Empty;
         public string Status { get; set; } = string.Empty;
+        public string? Diagnosis { get; set; }
+        public string? TreatmentFrequency { get; set; }
         public List<CreateTreatmentPlanDetailDto>? Details { get; set; }
     }
 

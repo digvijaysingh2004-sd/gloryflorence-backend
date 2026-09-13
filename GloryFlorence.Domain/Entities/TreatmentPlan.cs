@@ -12,8 +12,8 @@ namespace GloryFlorence.Domain.Entities
         public int PhysiotherapistId { get; set; }
         public virtual User Physiotherapist { get; set; } = null!;
 
-        public int AssessmentId { get; set; }
-        public virtual PatientAssessment Assessment { get; set; } = null!;
+        public int? AssessmentId { get; set; }
+        public virtual PatientAssessment? Assessment { get; set; }
 
         public DateTime StartDate { get; set; }
         public DateTime ExpectedEndDate { get; set; }
@@ -21,6 +21,8 @@ namespace GloryFlorence.Domain.Entities
         public string Goal { get; set; } = string.Empty;
         public string Notes { get; set; } = string.Empty;
         public string Status { get; set; } = "Draft"; // Draft, Active, Completed, Discontinued
+        public string? Diagnosis { get; set; }
+        public string? TreatmentFrequency { get; set; }
 
         // Navigation properties
         public virtual ICollection<TreatmentPlanDetail> TreatmentPlanDetails { get; set; } = new List<TreatmentPlanDetail>();

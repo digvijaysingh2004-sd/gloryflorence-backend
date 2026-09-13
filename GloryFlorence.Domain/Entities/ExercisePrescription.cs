@@ -18,6 +18,8 @@ namespace GloryFlorence.Domain.Entities
         public DateTime PrescriptionDate { get; set; }
         public string Instructions { get; set; } = string.Empty;
         public string Status { get; set; } = "Active"; // Active, Completed, Discontinued
+        public string? Diagnosis { get; set; }
+        public string? TargetGoal { get; set; }
 
         // Navigation property for prescribed exercises
         public virtual ICollection<ExercisePrescriptionDetail> PrescriptionDetails { get; set; } = new List<ExercisePrescriptionDetail>();

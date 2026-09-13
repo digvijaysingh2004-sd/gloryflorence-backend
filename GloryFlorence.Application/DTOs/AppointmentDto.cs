@@ -1,4 +1,6 @@
 using System;
+using System.Text.Json.Serialization;
+using GloryFlorence.Application.Common.Converters;
 
 namespace GloryFlorence.Application.DTOs
 {
@@ -19,13 +21,17 @@ namespace GloryFlorence.Application.DTOs
         public int DurationMinutes { get; set; }
 
         public DateTime AppointmentDate { get; set; }
+        [JsonConverter(typeof(FlexibleTimeSpanJsonConverter))]
         public TimeSpan StartTime { get; set; }
+        [JsonConverter(typeof(FlexibleTimeSpanJsonConverter))]
         public TimeSpan EndTime { get; set; }
 
         public string Status { get; set; } = string.Empty;
         public string Reason { get; set; } = string.Empty;
         public string Notes { get; set; } = string.Empty;
         public string? CancellationReason { get; set; }
+        public string? Room { get; set; }
+        public decimal? Fee { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
     }

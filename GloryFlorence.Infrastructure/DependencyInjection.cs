@@ -17,11 +17,11 @@ namespace GloryFlorence.Infrastructure
             {
                 // SQL Server Configuration (commented out):
                 // options.UseSqlServer(connectionString,
-                //     b => b.MigrationsAssembly(typeof(ApplicationDbContext).Assembly.FullName));
+                //     b => b.MigrationsAssembly("GloryFlorence.Infrastructure"));
 
                 // PostgreSQL Configuration:
                 options.UseNpgsql(connectionString,
-                    b => b.MigrationsAssembly(typeof(ApplicationDbContext).Assembly.FullName));
+                    b => b.MigrationsAssembly("GloryFlorence.Infrastructure"));
             });
 
             services.AddScoped<IUnitOfWork, UnitOfWork>();

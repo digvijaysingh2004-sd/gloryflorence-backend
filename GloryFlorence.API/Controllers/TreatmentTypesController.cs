@@ -65,7 +65,11 @@ namespace GloryFlorence.API.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Update(int id, [FromBody] UpdateTreatmentTypeDto dto, CancellationToken cancellationToken)
         {
-            if (id != dto.Id)
+            if (dto.Id == 0)
+            {
+                dto.Id = id;
+            }
+            else if (id != dto.Id)
             {
                 return BadRequest(ApiResponse<object>.FailureResponse("ID in route does not match ID in body."));
             }
