@@ -133,11 +133,16 @@ namespace GloryFlorence.Infrastructure.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+<<<<<<<< HEAD:GloryFlorence.Infrastructure/Migrations/20260912101129_Initial Migration.cs
                     MRN = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false, defaultValue: ""),
+========
+                    MRN = table.Column<string>(type: "text", nullable: false),
+>>>>>>>> d4c6c38f6f263be53bc307c9b0f08cdc439dab07:GloryFlorence.Infrastructure/Migrations/20260913143436_Initial Migration.cs
                     FirstName = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
                     LastName = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
                     DateOfBirth = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     Gender = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: false),
+<<<<<<<< HEAD:GloryFlorence.Infrastructure/Migrations/20260912101129_Initial Migration.cs
                     BloodGroup = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false, defaultValue: ""),
                     Email = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     PhoneNumber = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
@@ -155,7 +160,26 @@ namespace GloryFlorence.Infrastructure.Migrations
                     Temperature = table.Column<double>(type: "double precision", nullable: true),
                     OxygenSaturation = table.Column<double>(type: "double precision", nullable: true),
                     VitalsUpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+========
+                    BloodGroup = table.Column<string>(type: "text", nullable: false),
+                    Email = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    PhoneNumber = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
+                    Address = table.Column<string>(type: "character varying(250)", maxLength: 250, nullable: false),
+                    City = table.Column<string>(type: "text", nullable: false),
+                    State = table.Column<string>(type: "text", nullable: false),
+                    Country = table.Column<string>(type: "text", nullable: false),
+                    EmergencyContactName = table.Column<string>(type: "text", nullable: false),
+                    EmergencyContactPhone = table.Column<string>(type: "text", nullable: false),
+                    Status = table.Column<string>(type: "text", nullable: false),
+>>>>>>>> d4c6c38f6f263be53bc307c9b0f08cdc439dab07:GloryFlorence.Infrastructure/Migrations/20260913143436_Initial Migration.cs
                     MedicalHistory = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: false),
+                    BloodPressure = table.Column<string>(type: "text", nullable: true),
+                    HeartRate = table.Column<int>(type: "integer", nullable: true),
+                    WeightKg = table.Column<double>(type: "double precision", nullable: true),
+                    HeightCm = table.Column<double>(type: "double precision", nullable: true),
+                    Temperature = table.Column<double>(type: "double precision", nullable: true),
+                    OxygenSaturation = table.Column<double>(type: "double precision", nullable: true),
+                    VitalsUpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },
@@ -341,10 +365,17 @@ namespace GloryFlorence.Infrastructure.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     InvoiceNumber = table.Column<string>(type: "text", nullable: false),
                     PatientId = table.Column<int>(type: "integer", nullable: false),
+<<<<<<<< HEAD:GloryFlorence.Infrastructure/Migrations/20260912101129_Initial Migration.cs
                     SubTotal = table.Column<decimal>(type: "numeric", nullable: false, defaultValue: 0m),
                     TaxAmount = table.Column<decimal>(type: "numeric", nullable: false, defaultValue: 0m),
                     DiscountAmount = table.Column<decimal>(type: "numeric", nullable: false, defaultValue: 0m),
                     TotalAmount = table.Column<decimal>(type: "numeric", nullable: false, defaultValue: 0m),
+========
+                    SubTotal = table.Column<decimal>(type: "numeric", nullable: false),
+                    TaxAmount = table.Column<decimal>(type: "numeric", nullable: false),
+                    DiscountAmount = table.Column<decimal>(type: "numeric", nullable: false),
+                    TotalAmount = table.Column<decimal>(type: "numeric", nullable: false),
+>>>>>>>> d4c6c38f6f263be53bc307c9b0f08cdc439dab07:GloryFlorence.Infrastructure/Migrations/20260913143436_Initial Migration.cs
                     Amount = table.Column<decimal>(type: "numeric", nullable: false),
                     PaidAmount = table.Column<decimal>(type: "numeric", nullable: false),
                     BalanceAmount = table.Column<decimal>(type: "numeric", nullable: false),
@@ -434,6 +465,8 @@ namespace GloryFlorence.Infrastructure.Migrations
                     Reason = table.Column<string>(type: "character varying(250)", maxLength: 250, nullable: false),
                     Notes = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: false),
                     CancellationReason = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
+                    Room = table.Column<string>(type: "text", nullable: true),
+                    Fee = table.Column<decimal>(type: "numeric", nullable: true),
                     TherapistId = table.Column<int>(type: "integer", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
@@ -594,6 +627,14 @@ namespace GloryFlorence.Infrastructure.Migrations
                         principalTable: "Invoices",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+<<<<<<<< HEAD:GloryFlorence.Infrastructure/Migrations/20260912101129_Initial Migration.cs
+========
+                    table.ForeignKey(
+                        name: "FK_InvoiceItems_TreatmentTypes_TreatmentTypeId",
+                        column: x => x.TreatmentTypeId,
+                        principalTable: "TreatmentTypes",
+                        principalColumn: "Id");
+>>>>>>>> d4c6c38f6f263be53bc307c9b0f08cdc439dab07:GloryFlorence.Infrastructure/Migrations/20260913143436_Initial Migration.cs
                 });
 
             migrationBuilder.CreateTable(
@@ -698,6 +739,8 @@ namespace GloryFlorence.Infrastructure.Migrations
                     PrescriptionDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     Instructions = table.Column<string>(type: "character varying(2000)", maxLength: 2000, nullable: false),
                     Status = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false, defaultValue: "Active"),
+                    Diagnosis = table.Column<string>(type: "text", nullable: true),
+                    TargetGoal = table.Column<string>(type: "text", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },
@@ -734,6 +777,17 @@ namespace GloryFlorence.Infrastructure.Migrations
                     Diagnosis = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false),
                     ClinicalNotes = table.Column<string>(type: "character varying(2000)", maxLength: 2000, nullable: false),
                     Recommendations = table.Column<string>(type: "character varying(2000)", maxLength: 2000, nullable: false),
+                    PainLocation = table.Column<string>(type: "text", nullable: true),
+                    PainType = table.Column<string>(type: "text", nullable: true),
+                    AggravatingFactors = table.Column<string>(type: "text", nullable: true),
+                    RelievingFactors = table.Column<string>(type: "text", nullable: true),
+                    RomFindings = table.Column<string>(type: "text", nullable: true),
+                    PostureAndGait = table.Column<string>(type: "text", nullable: true),
+                    FunctionalLimitations = table.Column<string>(type: "text", nullable: true),
+                    Prognosis = table.Column<string>(type: "text", nullable: true),
+                    ShortTermGoals = table.Column<string>(type: "text", nullable: true),
+                    LongTermGoals = table.Column<string>(type: "text", nullable: true),
+                    RecommendedFrequency = table.Column<string>(type: "text", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },
@@ -762,13 +816,15 @@ namespace GloryFlorence.Infrastructure.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     PatientId = table.Column<int>(type: "integer", nullable: false),
                     PhysiotherapistId = table.Column<int>(type: "integer", nullable: false),
-                    AssessmentId = table.Column<int>(type: "integer", nullable: false),
+                    AssessmentId = table.Column<int>(type: "integer", nullable: true),
                     StartDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     ExpectedEndDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     NumberOfSessions = table.Column<int>(type: "integer", nullable: false),
                     Goal = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: false),
                     Notes = table.Column<string>(type: "character varying(2000)", maxLength: 2000, nullable: false),
                     Status = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false, defaultValue: "Draft"),
+                    Diagnosis = table.Column<string>(type: "text", nullable: true),
+                    TreatmentFrequency = table.Column<string>(type: "text", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },
@@ -847,6 +903,9 @@ namespace GloryFlorence.Infrastructure.Migrations
                     TreatmentPerformed = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: false),
                     Recommendations = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: false),
                     Notes = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: false),
+                    ModalitiesConducted = table.Column<string>(type: "text", nullable: true),
+                    PatientTolerance = table.Column<string>(type: "text", nullable: true),
+                    NextSessionPlan = table.Column<string>(type: "text", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },
@@ -970,6 +1029,14 @@ namespace GloryFlorence.Infrastructure.Migrations
                 column: "InvoiceId");
 
             migrationBuilder.CreateIndex(
+<<<<<<<< HEAD:GloryFlorence.Infrastructure/Migrations/20260912101129_Initial Migration.cs
+========
+                name: "IX_InvoiceItems_TreatmentTypeId",
+                table: "InvoiceItems",
+                column: "TreatmentTypeId");
+
+            migrationBuilder.CreateIndex(
+>>>>>>>> d4c6c38f6f263be53bc307c9b0f08cdc439dab07:GloryFlorence.Infrastructure/Migrations/20260913143436_Initial Migration.cs
                 name: "IX_Invoices_PatientId",
                 table: "Invoices",
                 column: "PatientId");
