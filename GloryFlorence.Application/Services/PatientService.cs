@@ -63,6 +63,7 @@ namespace GloryFlorence.Application.Services
                 RegistrationDate = baseDto.RegistrationDate,
                 Status = baseDto.Status,
                 MedicalHistory = baseDto.MedicalHistory,
+                ProfilePictureUrl = baseDto.ProfilePictureUrl,
                 Vitals = baseDto.Vitals,
                 MedicalHistories = patient.MedicalHistories.Select(h => new PatientMedicalHistoryDto
                 {
@@ -458,6 +459,18 @@ namespace GloryFlorence.Application.Services
             await _unitOfWork.SaveChangesAsync(cancellationToken);
         }
 
+        public async Task<bool> UpdateProfilePictureAsync(int patientId, string? profilePictureUrl, CancellationToken cancellationToken = default)
+        {
+            var patient = await _unitOfWork.Patients.GetByIdAsync(patientId, cancellationToken);
+            if (patient == null) return false;
+
+            patient.ProfilePictureUrl = profilePictureUrl;
+            patient.UpdatedAt = DateTime.UtcNow;
+            _unitOfWork.Patients.Update(patient);
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
+            return true;
+        }
+
         private static PatientDto MapToDto(Patient patient)
         {
             return new PatientDto
@@ -480,6 +493,7 @@ namespace GloryFlorence.Application.Services
                 RegistrationDate = patient.CreatedAt,
                 Status = string.IsNullOrWhiteSpace(patient.Status) ? "Active" : patient.Status,
                 MedicalHistory = patient.MedicalHistory,
+                ProfilePictureUrl = patient.ProfilePictureUrl,
                 Vitals = new VitalsDto
                 {
                     BloodPressure = patient.BloodPressure ?? "120/80",

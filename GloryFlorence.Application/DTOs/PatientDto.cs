@@ -24,6 +24,7 @@ namespace GloryFlorence.Application.DTOs
         public DateTime RegistrationDate { get; set; }
         public string Status { get; set; } = "Active";
         public string MedicalHistory { get; set; } = string.Empty;
+        public string? ProfilePictureUrl { get; set; }
 
         public VitalsDto? Vitals { get; set; }
     }

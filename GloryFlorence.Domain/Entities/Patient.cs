@@ -33,6 +33,7 @@ namespace GloryFlorence.Domain.Entities
         public DateTime? VitalsUpdatedAt { get; set; }
 
         public int? UserId { get; set; }
+        public string? ProfilePictureUrl { get; set; }
 
         // Navigation properties
         public virtual User? User { get; set; }

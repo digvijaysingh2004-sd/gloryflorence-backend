@@ -8,6 +8,7 @@ using GloryFlorence.Application.DTOs;
 using GloryFlorence.Application.Interfaces;
 using GloryFlorence.Domain.Entities;
 using GloryFlorence.Domain.Constants;
+using Microsoft.EntityFrameworkCore;
 
 namespace GloryFlorence.Application.Services
 {
@@ -153,7 +154,10 @@ namespace GloryFlorence.Application.Services
 
         public async Task<UserDto> GetByIdAsync(int id, CancellationToken cancellationToken)
         {
-            var user = await _unitOfWork.Users.GetByIdAsync(id, cancellationToken);
+            var user = await _unitOfWork.Users.Query()
+                .Include(u => u.UserProfile)
+                .FirstOrDefaultAsync(u => u.Id == id, cancellationToken);
+
             if (user == null)
             {
                 throw new NotFoundException(nameof(User), id);
@@ -163,10 +167,10 @@ namespace GloryFlorence.Application.Services
 
         public async Task<UserDto> GetByUsernameAsync(string username, CancellationToken cancellationToken)
         {
-            var userList = await _unitOfWork.Users.FindAsync(
-                u => u.Username.ToLower() == username.ToLower(), 
-                cancellationToken);
-            var user = userList.FirstOrDefault();
+            var user = await _unitOfWork.Users.Query()
+                .Include(u => u.UserProfile)
+                .FirstOrDefaultAsync(u => u.Username.ToLower() == username.ToLower(), cancellationToken);
+
             if (user == null)
             {
                 throw new NotFoundException(nameof(User), username);
@@ -291,7 +295,9 @@ namespace GloryFlorence.Application.Services
 
         public async Task<IEnumerable<UserDto>> GetAllUsersAsync(CancellationToken cancellationToken)
         {
-            var users = await _unitOfWork.Users.GetAllAsync(cancellationToken);
+            var users = await _unitOfWork.Users.Query()
+                .Include(u => u.UserProfile)
+                .ToListAsync(cancellationToken);
             return users.Select(MapToDto);
         }
 
@@ -318,6 +324,7 @@ namespace GloryFlorence.Application.Services
                 IsActive = user.IsActive,
                 FirstName = user.FirstName,
                 LastName = user.LastName,
+                ProfilePictureUrl = user.UserProfile?.ProfilePictureUrl,
                 CreatedAt = user.CreatedAt
             };
         }

@@ -37,6 +37,9 @@ namespace GloryFlorence.Infrastructure.Data.Configurations
             builder.Property(p => p.MedicalHistory)
                 .HasMaxLength(1000);
 
+            builder.Property(p => p.ProfilePictureUrl)
+                .HasMaxLength(500);
+
             builder.HasOne(p => p.User)
                 .WithMany()
                 .HasForeignKey(p => p.UserId)

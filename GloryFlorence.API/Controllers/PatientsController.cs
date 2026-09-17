@@ -2,8 +2,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using FluentValidation;
 using GloryFlorence.API.Common;
+using GloryFlorence.API.DTOs;
 using GloryFlorence.Application.DTOs;
 using GloryFlorence.Application.Interfaces;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -14,15 +16,18 @@ namespace GloryFlorence.API.Controllers
         private readonly IPatientService _patientService;
         private readonly IValidator<CreatePatientDto> _createValidator;
         private readonly ICurrentUserService _currentUserService;
+        private readonly IWebHostEnvironment _env;
 
         public PatientsController(
             IPatientService patientService,
             IValidator<CreatePatientDto> createValidator,
-            ICurrentUserService currentUserService)
+            ICurrentUserService currentUserService,
+            IWebHostEnvironment env)
         {
             _patientService = patientService;
             _createValidator = createValidator;
             _currentUserService = currentUserService;
+            _env = env;
         }
 
         [HttpGet("me")]
@@ -53,6 +58,242 @@ namespace GloryFlorence.API.Controllers
             }
 
             return Ok(ApiResponse<PatientDto>.SuccessResponse(patient, "Patient profile retrieved successfully."));
+        }
+
+        /// <summary>
+        /// Upload or replace the profile picture for the logged-in patient
+        /// </summary>
+        /// <param name="file">Image file (JPG, PNG, WEBP, GIF up to 5MB)</param>
+        [HttpPost("me/profile-picture")]
+        [Consumes("multipart/form-data")]
+        [ProducesResponseType(typeof(ApiResponse<ProfilePictureResponseDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> UploadMyProfilePicture([FromForm] UploadProfilePictureRequest request, CancellationToken cancellationToken)
+        {
+            if (!_currentUserService.IsAuthenticated)
+            {
+                return Unauthorized(ApiResponse<object>.FailureResponse("User is not authenticated."));
+            }
+
+            var file = request?.File ?? (Request.HasFormContentType && Request.Form.Files.Count > 0 ? Request.Form.Files[0] : null);
+            if (file == null || file.Length == 0)
+            {
+                return BadRequest(ApiResponse<object>.FailureResponse(new[] { "Please select an image file to upload." }, "No image file provided."));
+            }
+
+            const long maxFileSize = 5 * 1024 * 1024;
+            if (file.Length > maxFileSize)
+            {
+                return BadRequest(ApiResponse<object>.FailureResponse(new[] { "Image file must not exceed 5 MB." }, "File size exceeds 5MB limit."));
+            }
+
+            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp", ".gif" };
+            var extension = System.IO.Path.GetExtension(file.FileName).ToLowerInvariant();
+            if (!System.Linq.Enumerable.Contains(allowedExtensions, extension))
+            {
+                return BadRequest(ApiResponse<object>.FailureResponse(new[] { "Allowed image formats: .jpg, .jpeg, .png, .webp, .gif" }, "Invalid image extension."));
+            }
+
+            PatientDto? patient = null;
+            if (int.TryParse(_currentUserService.UserId, out var userId) && userId > 0)
+            {
+                patient = await _patientService.GetPatientByUserIdAsync(userId, cancellationToken);
+            }
+
+            var userEmail = _currentUserService.Email ?? _currentUserService.Username;
+            if (patient == null && !string.IsNullOrEmpty(userEmail))
+            {
+                patient = await _patientService.GetPatientByEmailAsync(userEmail, cancellationToken);
+            }
+
+            if (patient == null)
+            {
+                return NotFound(ApiResponse<object>.FailureResponse("Could not find a patient record linked to your user account.", "Patient profile record not found."));
+            }
+
+            var webRoot = _env.WebRootPath ?? System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), "wwwroot");
+            var uploadDir = System.IO.Path.Combine(webRoot, "uploads", "profiles");
+
+            if (!System.IO.Directory.Exists(uploadDir))
+            {
+                System.IO.Directory.CreateDirectory(uploadDir);
+            }
+
+            if (!string.IsNullOrEmpty(patient.ProfilePictureUrl))
+            {
+                try
+                {
+                    var oldFileName = System.IO.Path.GetFileName(patient.ProfilePictureUrl);
+                    var oldFilePath = System.IO.Path.Combine(uploadDir, oldFileName);
+                    if (System.IO.File.Exists(oldFilePath))
+                    {
+                        System.IO.File.Delete(oldFilePath);
+                    }
+                }
+                catch
+                {
+                    // Ignore deletion error on missing files
+                }
+            }
+
+            var uniqueFileName = $"patient_{patient.Id}_{System.Guid.NewGuid():N}{extension}";
+            var physicalPath = System.IO.Path.Combine(uploadDir, uniqueFileName);
+
+            using (var stream = new System.IO.FileStream(physicalPath, System.IO.FileMode.Create))
+            {
+                await file.CopyToAsync(stream, cancellationToken);
+            }
+
+            var fullUrl = $"{Request.Scheme}://{Request.Host}/uploads/profiles/{uniqueFileName}";
+
+            await _patientService.UpdateProfilePictureAsync(patient.Id, fullUrl, cancellationToken);
+
+            return Ok(ApiResponse<ProfilePictureResponseDto>.SuccessResponse(
+                new ProfilePictureResponseDto { ProfilePictureUrl = fullUrl },
+                "Profile picture uploaded successfully."));
+        }
+
+        /// <summary>
+        /// Removes the profile picture for the logged-in patient
+        /// </summary>
+        [HttpDelete("me/profile-picture")]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> DeleteMyProfilePicture(CancellationToken cancellationToken)
+        {
+            if (!_currentUserService.IsAuthenticated)
+            {
+                return Unauthorized(ApiResponse<object>.FailureResponse("User is not authenticated."));
+            }
+
+            PatientDto? patient = null;
+            if (int.TryParse(_currentUserService.UserId, out var userId) && userId > 0)
+            {
+                patient = await _patientService.GetPatientByUserIdAsync(userId, cancellationToken);
+            }
+
+            var userEmail = _currentUserService.Email ?? _currentUserService.Username;
+            if (patient == null && !string.IsNullOrEmpty(userEmail))
+            {
+                patient = await _patientService.GetPatientByEmailAsync(userEmail, cancellationToken);
+            }
+
+            if (patient != null && !string.IsNullOrEmpty(patient.ProfilePictureUrl))
+            {
+                var webRoot = _env.WebRootPath ?? System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), "wwwroot");
+                var fileName = System.IO.Path.GetFileName(patient.ProfilePictureUrl);
+                var filePath = System.IO.Path.Combine(webRoot, "uploads", "profiles", fileName);
+
+                if (System.IO.File.Exists(filePath))
+                {
+                    try { System.IO.File.Delete(filePath); } catch { }
+                }
+
+                await _patientService.UpdateProfilePictureAsync(patient.Id, null, cancellationToken);
+            }
+
+            return Ok(ApiResponse<object?>.SuccessResponse(null, "Profile picture removed successfully."));
+        }
+
+        /// <summary>
+        /// Upload or replace profile picture for a specific patient by ID (Admin / Doctor / Staff)
+        /// </summary>
+        [HttpPost("{id:int}/profile-picture")]
+        [Consumes("multipart/form-data")]
+        [ProducesResponseType(typeof(ApiResponse<ProfilePictureResponseDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> UploadPatientProfilePicture(int id, [FromForm] UploadProfilePictureRequest request, CancellationToken cancellationToken)
+        {
+            var file = request?.File ?? (Request.HasFormContentType && Request.Form.Files.Count > 0 ? Request.Form.Files[0] : null);
+            if (file == null || file.Length == 0)
+            {
+                return BadRequest(ApiResponse<object>.FailureResponse("No image file provided."));
+            }
+
+            if (file.Length > 5 * 1024 * 1024)
+            {
+                return BadRequest(ApiResponse<object>.FailureResponse("File size exceeds 5MB limit."));
+            }
+
+            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp", ".gif" };
+            var extension = System.IO.Path.GetExtension(file.FileName).ToLowerInvariant();
+            if (!System.Linq.Enumerable.Contains(allowedExtensions, extension))
+            {
+                return BadRequest(ApiResponse<object>.FailureResponse("Allowed formats: .jpg, .jpeg, .png, .webp, .gif"));
+            }
+
+            var patientDto = await _patientService.GetPatientByIdAsync(id, cancellationToken);
+            if (patientDto == null)
+            {
+                return NotFound(ApiResponse<object>.FailureResponse($"Patient with ID {id} not found."));
+            }
+
+            var webRoot = _env.WebRootPath ?? System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), "wwwroot");
+            var uploadsFolder = System.IO.Path.Combine(webRoot, "uploads", "profiles");
+            if (!System.IO.Directory.Exists(uploadsFolder))
+            {
+                System.IO.Directory.CreateDirectory(uploadsFolder);
+            }
+
+            if (!string.IsNullOrEmpty(patientDto.ProfilePictureUrl))
+            {
+                try
+                {
+                    var oldFileName = System.IO.Path.GetFileName(patientDto.ProfilePictureUrl);
+                    var oldFilePath = System.IO.Path.Combine(uploadsFolder, oldFileName);
+                    if (System.IO.File.Exists(oldFilePath))
+                    {
+                        System.IO.File.Delete(oldFilePath);
+                    }
+                }
+                catch { }
+            }
+
+            var uniqueFileName = $"patient_{id}_{System.Guid.NewGuid():N}{extension}";
+            var physicalPath = System.IO.Path.Combine(uploadsFolder, uniqueFileName);
+
+            using (var stream = new System.IO.FileStream(physicalPath, System.IO.FileMode.Create))
+            {
+                await file.CopyToAsync(stream, cancellationToken);
+            }
+
+            var fullUrl = $"{Request.Scheme}://{Request.Host}/uploads/profiles/{uniqueFileName}";
+            await _patientService.UpdateProfilePictureAsync(id, fullUrl, cancellationToken);
+
+            return Ok(ApiResponse<ProfilePictureResponseDto>.SuccessResponse(new ProfilePictureResponseDto
+            {
+                ProfilePictureUrl = fullUrl
+            }, "Patient profile picture uploaded successfully."));
+        }
+
+        /// <summary>
+        /// Removes the profile picture for a patient by ID
+        /// </summary>
+        [HttpDelete("{id:int}/profile-picture")]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> DeletePatientProfilePicture(int id, CancellationToken cancellationToken)
+        {
+            var patientDto = await _patientService.GetPatientByIdAsync(id, cancellationToken);
+            if (patientDto == null)
+            {
+                return NotFound(ApiResponse<object>.FailureResponse($"Patient with ID {id} not found."));
+            }
+
+            if (!string.IsNullOrEmpty(patientDto.ProfilePictureUrl))
+            {
+                var webRoot = _env.WebRootPath ?? System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), "wwwroot");
+                var fileName = System.IO.Path.GetFileName(patientDto.ProfilePictureUrl);
+                var filePath = System.IO.Path.Combine(webRoot, "uploads", "profiles", fileName);
+                if (System.IO.File.Exists(filePath))
+                {
+                    try { System.IO.File.Delete(filePath); } catch { }
+                }
+
+                await _patientService.UpdateProfilePictureAsync(id, null, cancellationToken);
+            }
+
+            return Ok(ApiResponse<object?>.SuccessResponse(null, "Patient profile picture removed."));
         }
 
         [HttpGet]

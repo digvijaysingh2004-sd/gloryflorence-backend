@@ -20,5 +20,6 @@ namespace GloryFlorence.Application.Interfaces
         Task<IEnumerable<PatientDocumentDto>> GetDocumentsAsync(int patientId, CancellationToken cancellationToken = default);
         Task<PatientDocumentDto> AddDocumentAsync(int patientId, CreatePatientDocumentDto documentDto, CancellationToken cancellationToken = default);
         Task DeleteDocumentAsync(int documentId, CancellationToken cancellationToken = default);
+        Task<bool> UpdateProfilePictureAsync(int patientId, string? profilePictureUrl, CancellationToken cancellationToken = default);
     }
 }
