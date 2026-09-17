@@ -1,10 +1,14 @@
+using GloryFlorence.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
 namespace GloryFlorence.Infrastructure.Migrations
 {
-    /// <inheritdoc />
+    [DbContext(typeof(ApplicationDbContext))]
+    [Migration("20260917080000_AddUserIdToPatients")]
     public partial class AddUserIdToPatients : Migration
     {
         /// <inheritdoc />

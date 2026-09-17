@@ -28,12 +28,19 @@ namespace GloryFlorence.Infrastructure.Migrations
                 ALTER TABLE ""Patients"" ADD COLUMN IF NOT EXISTS ""OxygenSaturation"" double precision;
                 ALTER TABLE ""Patients"" ADD COLUMN IF NOT EXISTS ""VitalsUpdatedAt"" timestamp with time zone;
 
-                ALTER TABLE ""Invoices"" ADD COLUMN IF NOT EXISTS ""SubTotal"" numeric NOT NULL DEFAULT 0;
-                ALTER TABLE ""Invoices"" ADD COLUMN IF NOT EXISTS ""TaxAmount"" numeric NOT NULL DEFAULT 0;
-                ALTER TABLE ""Invoices"" ADD COLUMN IF NOT EXISTS ""DiscountAmount"" numeric NOT NULL DEFAULT 0;
-                ALTER TABLE ""Invoices"" ADD COLUMN IF NOT EXISTS ""TotalAmount"" numeric NOT NULL DEFAULT 0;
+                DO $$
+                BEGIN
+                    IF EXISTS (SELECT 1 FROM pg_tables WHERE schemaname = 'public' AND tablename = 'Invoices') THEN
+                        ALTER TABLE ""Invoices"" ADD COLUMN IF NOT EXISTS ""SubTotal"" numeric NOT NULL DEFAULT 0;
+                        ALTER TABLE ""Invoices"" ADD COLUMN IF NOT EXISTS ""TaxAmount"" numeric NOT NULL DEFAULT 0;
+                        ALTER TABLE ""Invoices"" ADD COLUMN IF NOT EXISTS ""DiscountAmount"" numeric NOT NULL DEFAULT 0;
+                        ALTER TABLE ""Invoices"" ADD COLUMN IF NOT EXISTS ""TotalAmount"" numeric NOT NULL DEFAULT 0;
+                    END IF;
 
-                ALTER TABLE ""InvoiceItems"" ADD COLUMN IF NOT EXISTS ""TreatmentTypeId"" integer;
+                    IF EXISTS (SELECT 1 FROM pg_tables WHERE schemaname = 'public' AND tablename = 'InvoiceItems') THEN
+                        ALTER TABLE ""InvoiceItems"" ADD COLUMN IF NOT EXISTS ""TreatmentTypeId"" integer;
+                    END IF;
+                END $$;
             ");
         }
 
@@ -57,12 +64,19 @@ namespace GloryFlorence.Infrastructure.Migrations
                 ALTER TABLE ""Patients"" DROP COLUMN IF EXISTS ""OxygenSaturation"";
                 ALTER TABLE ""Patients"" DROP COLUMN IF EXISTS ""VitalsUpdatedAt"";
 
-                ALTER TABLE ""Invoices"" DROP COLUMN IF EXISTS ""SubTotal"";
-                ALTER TABLE ""Invoices"" DROP COLUMN IF EXISTS ""TaxAmount"";
-                ALTER TABLE ""Invoices"" DROP COLUMN IF EXISTS ""DiscountAmount"";
-                ALTER TABLE ""Invoices"" DROP COLUMN IF EXISTS ""TotalAmount"";
+                DO $$
+                BEGIN
+                    IF EXISTS (SELECT 1 FROM pg_tables WHERE schemaname = 'public' AND tablename = 'Invoices') THEN
+                        ALTER TABLE ""Invoices"" DROP COLUMN IF EXISTS ""SubTotal"";
+                        ALTER TABLE ""Invoices"" DROP COLUMN IF EXISTS ""TaxAmount"";
+                        ALTER TABLE ""Invoices"" DROP COLUMN IF EXISTS ""DiscountAmount"";
+                        ALTER TABLE ""Invoices"" DROP COLUMN IF EXISTS ""TotalAmount"";
+                    END IF;
 
-                ALTER TABLE ""InvoiceItems"" DROP COLUMN IF EXISTS ""TreatmentTypeId"";
+                    IF EXISTS (SELECT 1 FROM pg_tables WHERE schemaname = 'public' AND tablename = 'InvoiceItems') THEN
+                        ALTER TABLE ""InvoiceItems"" DROP COLUMN IF EXISTS ""TreatmentTypeId"";
+                    END IF;
+                END $$;
             ");
         }
     }
