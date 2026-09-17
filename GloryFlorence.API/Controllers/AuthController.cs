@@ -27,6 +27,24 @@ namespace GloryFlorence.API.Controllers
             return Ok(ApiResponse<LoginResponseDto>.SuccessResponse(response, "Login successful."));
         }
 
+        [HttpPost("register")]
+        [HttpPost("register-patient")]
+        [AllowAnonymous]
+        public async Task<ActionResult<ApiResponse<LoginResponseDto>>> RegisterPatient(
+            [FromBody] RegisterPatientDto registerDto,
+            [FromServices] FluentValidation.IValidator<RegisterPatientDto> validator,
+            CancellationToken cancellationToken)
+        {
+            var validationResult = await validator.ValidateAsync(registerDto, cancellationToken);
+            if (!validationResult.IsValid)
+            {
+                throw new FluentValidation.ValidationException(validationResult.Errors);
+            }
+
+            var response = await _userService.RegisterPatientAsync(registerDto, cancellationToken);
+            return Ok(ApiResponse<LoginResponseDto>.SuccessResponse(response, "Patient registered successfully."));
+        }
+
         [HttpGet("me")]
         [Authorize]
         public async Task<ActionResult<ApiResponse<UserDto>>> GetCurrentUser(CancellationToken cancellationToken)

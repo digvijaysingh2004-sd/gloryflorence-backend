@@ -8,6 +8,8 @@ namespace GloryFlorence.Application.Interfaces
     public interface IPatientService
     {
         Task<PatientDto?> GetPatientByIdAsync(int id, CancellationToken cancellationToken = default);
+        Task<PatientDto?> GetPatientByUserIdAsync(int userId, CancellationToken cancellationToken = default);
+        Task<PatientDto?> GetPatientByEmailAsync(string email, CancellationToken cancellationToken = default);
         Task<IEnumerable<PatientDto>> GetAllPatientsAsync(CancellationToken cancellationToken = default);
         Task<PatientDto> CreatePatientAsync(CreatePatientDto createPatientDto, CancellationToken cancellationToken = default);
         Task<PatientDto> UpdatePatientAsync(UpdatePatientDto updatePatientDto, CancellationToken cancellationToken = default);

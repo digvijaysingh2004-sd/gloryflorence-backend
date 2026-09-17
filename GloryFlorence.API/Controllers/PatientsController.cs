@@ -13,11 +13,46 @@ namespace GloryFlorence.API.Controllers
     {
         private readonly IPatientService _patientService;
         private readonly IValidator<CreatePatientDto> _createValidator;
+        private readonly ICurrentUserService _currentUserService;
 
-        public PatientsController(IPatientService patientService, IValidator<CreatePatientDto> createValidator)
+        public PatientsController(
+            IPatientService patientService,
+            IValidator<CreatePatientDto> createValidator,
+            ICurrentUserService currentUserService)
         {
             _patientService = patientService;
             _createValidator = createValidator;
+            _currentUserService = currentUserService;
+        }
+
+        [HttpGet("me")]
+        [ProducesResponseType(typeof(ApiResponse<PatientDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetMyProfile(CancellationToken cancellationToken)
+        {
+            if (!_currentUserService.IsAuthenticated)
+            {
+                return Unauthorized(ApiResponse<PatientDto>.FailureResponse("User is not authenticated."));
+            }
+
+            PatientDto? patient = null;
+            if (int.TryParse(_currentUserService.UserId, out var userId) && userId > 0)
+            {
+                patient = await _patientService.GetPatientByUserIdAsync(userId, cancellationToken);
+            }
+
+            var userEmail = _currentUserService.Email ?? _currentUserService.Username;
+            if (patient == null && !string.IsNullOrEmpty(userEmail))
+            {
+                patient = await _patientService.GetPatientByEmailAsync(userEmail, cancellationToken);
+            }
+
+            if (patient == null)
+            {
+                return NotFound(ApiResponse<PatientDto>.FailureResponse("Patient record for current logged in user was not found."));
+            }
+
+            return Ok(ApiResponse<PatientDto>.SuccessResponse(patient, "Patient profile retrieved successfully."));
         }
 
         [HttpGet]

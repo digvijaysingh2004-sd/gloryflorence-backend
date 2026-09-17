@@ -8,6 +8,7 @@ namespace GloryFlorence.Application.Interfaces
     public interface IUserService
     {
         Task<LoginResponseDto> LoginAsync(LoginDto loginDto, CancellationToken cancellationToken);
+        Task<LoginResponseDto> RegisterPatientAsync(RegisterPatientDto registerDto, CancellationToken cancellationToken);
         Task<UserDto> GetByIdAsync(int id, CancellationToken cancellationToken);
         Task<UserDto> GetByUsernameAsync(string username, CancellationToken cancellationToken);
         Task<UserDto> CreateUserAsync(CreateUserDto createUserDto, CancellationToken cancellationToken);

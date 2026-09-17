@@ -64,6 +64,93 @@ namespace GloryFlorence.Application.Services
             };
         }
 
+        public async Task<LoginResponseDto> RegisterPatientAsync(RegisterPatientDto registerDto, CancellationToken cancellationToken)
+        {
+            var emailLower = registerDto.Email.Trim().ToLower();
+
+            // Check if user with this email already exists
+            var existingUsers = await _unitOfWork.Users.FindAsync(
+                u => u.Email.ToLower() == emailLower || u.Username.ToLower() == emailLower,
+                cancellationToken);
+
+            if (existingUsers.Any())
+            {
+                throw new BadRequestException($"User with email '{registerDto.Email}' already exists.");
+            }
+
+            var user = new User
+            {
+                Username = registerDto.Email.Trim(),
+                Email = registerDto.Email.Trim(),
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword(registerDto.Password),
+                Role = Roles.Patient,
+                IsActive = true,
+                FirstName = registerDto.FirstName.Trim(),
+                LastName = registerDto.LastName.Trim(),
+                CreatedAt = DateTime.UtcNow
+            };
+
+            await _unitOfWork.Users.AddAsync(user, cancellationToken);
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+            // Check if a patient record already exists for this email
+            var existingPatients = await _unitOfWork.Patients.FindAsync(
+                p => p.Email.ToLower() == emailLower,
+                cancellationToken);
+
+            var existingPatient = existingPatients.FirstOrDefault();
+
+            if (existingPatient != null)
+            {
+                existingPatient.UserId = user.Id;
+                _unitOfWork.Patients.Update(existingPatient);
+            }
+            else
+            {
+                var mrn = $"MRN-{DateTime.UtcNow:yyyyMMdd}-{Random.Shared.Next(100, 999)}";
+                var newPatient = new Patient
+                {
+                    UserId = user.Id,
+                    MRN = mrn,
+                    FirstName = registerDto.FirstName.Trim(),
+                    LastName = registerDto.LastName.Trim(),
+                    DateOfBirth = registerDto.DateOfBirth == default ? DateTime.UtcNow.AddYears(-25) : registerDto.DateOfBirth,
+                    Gender = string.IsNullOrWhiteSpace(registerDto.Gender) ? "Other" : registerDto.Gender.Trim(),
+                    BloodGroup = registerDto.BloodGroup ?? string.Empty,
+                    Email = registerDto.Email.Trim(),
+                    PhoneNumber = registerDto.PhoneNumber?.Trim() ?? string.Empty,
+                    Address = registerDto.Address ?? string.Empty,
+                    City = registerDto.City ?? string.Empty,
+                    State = registerDto.State ?? string.Empty,
+                    Country = registerDto.Country ?? string.Empty,
+                    EmergencyContactName = registerDto.EmergencyContactName ?? string.Empty,
+                    EmergencyContactPhone = registerDto.EmergencyContactPhone ?? string.Empty,
+                    Status = "Active",
+                    MedicalHistory = registerDto.MedicalHistory ?? string.Empty,
+                    BloodPressure = "120/80",
+                    HeartRate = 72,
+                    WeightKg = 70.0,
+                    HeightCm = 170.0,
+                    Temperature = 98.6,
+                    OxygenSaturation = 98,
+                    VitalsUpdatedAt = DateTime.UtcNow,
+                    CreatedAt = DateTime.UtcNow
+                };
+
+                await _unitOfWork.Patients.AddAsync(newPatient, cancellationToken);
+            }
+
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+            var token = _tokenService.GenerateJwtToken(user);
+
+            return new LoginResponseDto
+            {
+                Token = token,
+                User = MapToDto(user)
+            };
+        }
+
         public async Task<UserDto> GetByIdAsync(int id, CancellationToken cancellationToken)
         {
             var user = await _unitOfWork.Users.GetByIdAsync(id, cancellationToken);

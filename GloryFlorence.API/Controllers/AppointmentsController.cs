@@ -18,15 +18,21 @@ namespace GloryFlorence.API.Controllers
         private readonly IAppointmentService _appointmentService;
         private readonly IValidator<CreateAppointmentDto> _createValidator;
         private readonly IValidator<UpdateAppointmentDto> _updateValidator;
+        private readonly ICurrentUserService _currentUserService;
+        private readonly IPatientService _patientService;
 
         public AppointmentsController(
             IAppointmentService appointmentService,
             IValidator<CreateAppointmentDto> createValidator,
-            IValidator<UpdateAppointmentDto> updateValidator)
+            IValidator<UpdateAppointmentDto> updateValidator,
+            ICurrentUserService currentUserService,
+            IPatientService patientService)
         {
             _appointmentService = appointmentService;
             _createValidator = createValidator;
             _updateValidator = updateValidator;
+            _currentUserService = currentUserService;
+            _patientService = patientService;
         }
 
         [HttpGet]
@@ -35,6 +41,39 @@ namespace GloryFlorence.API.Controllers
         {
             var result = await _appointmentService.GetAppointmentsAsync(filter, cancellationToken);
             return Ok(ApiResponse<PagedResult<AppointmentDto>>.SuccessResponse(result, "Appointments retrieved successfully."));
+        }
+
+        [HttpGet("my-appointments")]
+        [ProducesResponseType(typeof(ApiResponse<PagedResult<AppointmentDto>>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetMyAppointments([FromQuery] AppointmentFilterDto filter, CancellationToken cancellationToken)
+        {
+            if (!_currentUserService.IsAuthenticated)
+            {
+                return Unauthorized(ApiResponse<PagedResult<AppointmentDto>>.FailureResponse("User is not authenticated."));
+            }
+
+            PatientDto? patient = null;
+            if (int.TryParse(_currentUserService.UserId, out var userId) && userId > 0)
+            {
+                patient = await _patientService.GetPatientByUserIdAsync(userId, cancellationToken);
+            }
+
+            var userEmail = _currentUserService.Email ?? _currentUserService.Username;
+            if (patient == null && !string.IsNullOrEmpty(userEmail))
+            {
+                patient = await _patientService.GetPatientByEmailAsync(userEmail, cancellationToken);
+            }
+
+            if (patient == null)
+            {
+                return NotFound(ApiResponse<PagedResult<AppointmentDto>>.FailureResponse("Patient record for current logged in user was not found."));
+            }
+
+            filter ??= new AppointmentFilterDto();
+            filter.PatientId = patient.Id;
+
+            var result = await _appointmentService.GetAppointmentsAsync(filter, cancellationToken);
+            return Ok(ApiResponse<PagedResult<AppointmentDto>>.SuccessResponse(result, "My appointments retrieved successfully."));
         }
 
         [HttpGet("{id:int}")]
@@ -55,6 +94,24 @@ namespace GloryFlorence.API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Create([FromBody] CreateAppointmentDto dto, CancellationToken cancellationToken)
         {
+            if (dto.PatientId <= 0 && _currentUserService.IsAuthenticated)
+            {
+                PatientDto? patient = null;
+                if (int.TryParse(_currentUserService.UserId, out var userId) && userId > 0)
+                {
+                    patient = await _patientService.GetPatientByUserIdAsync(userId, cancellationToken);
+                }
+                var currentUserEmail = _currentUserService.Email ?? _currentUserService.Username;
+                if (patient == null && !string.IsNullOrEmpty(currentUserEmail))
+                {
+                    patient = await _patientService.GetPatientByEmailAsync(currentUserEmail, cancellationToken);
+                }
+                if (patient != null)
+                {
+                    dto.PatientId = patient.Id;
+                }
+            }
+
             var validationResult = await _createValidator.ValidateAsync(dto, cancellationToken);
             if (!validationResult.IsValid)
             {

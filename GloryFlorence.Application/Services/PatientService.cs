@@ -186,6 +186,21 @@ namespace GloryFlorence.Application.Services
             return patients.Select(MapToDto);
         }
 
+        public async Task<PatientDto?> GetPatientByUserIdAsync(int userId, CancellationToken cancellationToken = default)
+        {
+            var patients = await _unitOfWork.Patients.FindAsync(p => p.UserId == userId, cancellationToken);
+            var patient = patients.FirstOrDefault();
+            return patient == null ? null : MapToDto(patient);
+        }
+
+        public async Task<PatientDto?> GetPatientByEmailAsync(string email, CancellationToken cancellationToken = default)
+        {
+            if (string.IsNullOrWhiteSpace(email)) return null;
+            var patients = await _unitOfWork.Patients.FindAsync(p => p.Email.ToLower() == email.Trim().ToLower(), cancellationToken);
+            var patient = patients.FirstOrDefault();
+            return patient == null ? null : MapToDto(patient);
+        }
+
         public async Task<PatientDto> CreatePatientAsync(CreatePatientDto createPatientDto, CancellationToken cancellationToken = default)
         {
             var mrn = $"MRN-{DateTime.UtcNow:yyyyMMdd}-{Random.Shared.Next(100, 999)}";

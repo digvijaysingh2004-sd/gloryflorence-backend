@@ -32,7 +32,10 @@ namespace GloryFlorence.Domain.Entities
         public double? OxygenSaturation { get; set; }
         public DateTime? VitalsUpdatedAt { get; set; }
 
+        public int? UserId { get; set; }
+
         // Navigation properties
+        public virtual User? User { get; set; }
         public virtual ICollection<Appointment> Appointments { get; set; } = new List<Appointment>();
         public virtual ICollection<PatientMedicalHistory> MedicalHistories { get; set; } = new List<PatientMedicalHistory>();
         public virtual ICollection<PatientDocument> Documents { get; set; } = new List<PatientDocument>();

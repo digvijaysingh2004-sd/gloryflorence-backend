@@ -36,6 +36,11 @@ namespace GloryFlorence.Infrastructure.Data.Configurations
 
             builder.Property(p => p.MedicalHistory)
                 .HasMaxLength(1000);
+
+            builder.HasOne(p => p.User)
+                .WithMany()
+                .HasForeignKey(p => p.UserId)
+                .OnDelete(DeleteBehavior.SetNull);
         }
     }
 }
