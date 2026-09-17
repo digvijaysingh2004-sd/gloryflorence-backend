@@ -16,7 +16,21 @@ namespace GloryFlorence.Application.DTOs
         public int PainLevel { get; set; }
         public string Diagnosis { get; set; } = string.Empty;
         public string ClinicalNotes { get; set; } = string.Empty;
+        public string AssessmentNotes => ClinicalNotes;
         public string Recommendations { get; set; } = string.Empty;
+
+        public string? PainLocation { get; set; }
+        public string? PainType { get; set; }
+        public string? AggravatingFactors { get; set; }
+        public string? RelievingFactors { get; set; }
+        public string? RomFindings { get; set; }
+        public string? PostureAndGait { get; set; }
+        public string? FunctionalLimitations { get; set; }
+        public string? Prognosis { get; set; }
+        public string? ShortTermGoals { get; set; }
+        public string? LongTermGoals { get; set; }
+        public string? RecommendedFrequency { get; set; }
+
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
     }
@@ -33,6 +47,18 @@ namespace GloryFlorence.Application.DTOs
         public string Diagnosis { get; set; } = string.Empty;
         public string ClinicalNotes { get; set; } = string.Empty;
         public string Recommendations { get; set; } = string.Empty;
+
+        public string? PainLocation { get; set; }
+        public string? PainType { get; set; }
+        public string? AggravatingFactors { get; set; }
+        public string? RelievingFactors { get; set; }
+        public string? RomFindings { get; set; }
+        public string? PostureAndGait { get; set; }
+        public string? FunctionalLimitations { get; set; }
+        public string? Prognosis { get; set; }
+        public string? ShortTermGoals { get; set; }
+        public string? LongTermGoals { get; set; }
+        public string? RecommendedFrequency { get; set; }
     }
 
     public class UpdatePatientAssessmentDto
@@ -46,6 +72,18 @@ namespace GloryFlorence.Application.DTOs
         public string Diagnosis { get; set; } = string.Empty;
         public string ClinicalNotes { get; set; } = string.Empty;
         public string Recommendations { get; set; } = string.Empty;
+
+        public string? PainLocation { get; set; }
+        public string? PainType { get; set; }
+        public string? AggravatingFactors { get; set; }
+        public string? RelievingFactors { get; set; }
+        public string? RomFindings { get; set; }
+        public string? PostureAndGait { get; set; }
+        public string? FunctionalLimitations { get; set; }
+        public string? Prognosis { get; set; }
+        public string? ShortTermGoals { get; set; }
+        public string? LongTermGoals { get; set; }
+        public string? RecommendedFrequency { get; set; }
     }
 
     public class PatientAssessmentFilterDto

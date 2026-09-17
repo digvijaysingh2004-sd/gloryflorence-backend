@@ -49,11 +49,30 @@ namespace GloryFlorence.Application.Services
 
         public async Task<TreatmentTypeDto> CreateTreatmentTypeAsync(CreateTreatmentTypeDto dto, CancellationToken cancellationToken = default)
         {
-            var category = await _unitOfWork.Categories.GetByIdAsync(dto.CategoryId, cancellationToken);
+            Category? category = null;
+            if (dto.CategoryId > 0)
+            {
+                category = await _unitOfWork.Categories.GetByIdAsync(dto.CategoryId, cancellationToken);
+            }
+
+            if (category == null && !string.IsNullOrWhiteSpace(dto.CategoryName))
+            {
+                var foundCategories = await _unitOfWork.Categories.FindAsync(c => c.Name.ToLower() == dto.CategoryName.Trim().ToLower(), cancellationToken);
+                category = foundCategories.FirstOrDefault();
+            }
+
+            if (category == null)
+            {
+                var allCategories = await _unitOfWork.Categories.GetAllAsync(cancellationToken);
+                category = allCategories.FirstOrDefault();
+            }
+
             if (category == null)
             {
                 throw new NotFoundException(nameof(Category), dto.CategoryId);
             }
+
+            dto.CategoryId = category.Id;
 
             var entity = new TreatmentType
             {

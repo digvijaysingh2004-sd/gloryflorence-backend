@@ -12,6 +12,7 @@ namespace GloryFlorence.Application.Interfaces
         Task<UserDto> GetByUsernameAsync(string username, CancellationToken cancellationToken);
         Task<UserDto> CreateUserAsync(CreateUserDto createUserDto, CancellationToken cancellationToken);
         Task UpdateUserAsync(UpdateUserDto updateUserDto, CancellationToken cancellationToken);
+        Task<UserDto> UpdateProfileAsync(string username, UpdateUserProfileDto dto, CancellationToken cancellationToken);
         Task<IEnumerable<UserDto>> GetAllUsersAsync(CancellationToken cancellationToken);
         Task DeleteUserAsync(int id, CancellationToken cancellationToken);
     }

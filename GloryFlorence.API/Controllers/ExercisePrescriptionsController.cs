@@ -72,7 +72,7 @@ namespace GloryFlorence.API.Controllers
         }
 
         [HttpPut("{id:int}")]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(ApiResponse<ExercisePrescriptionDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Update(int id, [FromBody] UpdateExercisePrescriptionDto dto, CancellationToken cancellationToken)
@@ -83,8 +83,8 @@ namespace GloryFlorence.API.Controllers
                 throw new ValidationException(validationResult.Errors);
             }
 
-            await _prescriptionService.UpdatePrescriptionAsync(id, dto, cancellationToken);
-            return NoContent();
+            var updated = await _prescriptionService.UpdatePrescriptionAsync(id, dto, cancellationToken);
+            return Ok(ApiResponse<ExercisePrescriptionDto>.SuccessResponse(updated, "Exercise prescription updated successfully."));
         }
 
         [HttpPatch("{id:int}/status")]
@@ -139,11 +139,29 @@ namespace GloryFlorence.API.Controllers
 
         // Nested convenience routes matching requirements
         [HttpGet("~/api/patients/{patientId:int}/exercise-prescriptions")]
+        [HttpGet("~/api/patients/{patientId:int}/prescriptions")]
         [ProducesResponseType(typeof(ApiResponse<IEnumerable<ExercisePrescriptionDto>>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetByPatient(int patientId, CancellationToken cancellationToken)
         {
             var history = await _prescriptionService.GetPatientPrescriptionHistoryAsync(patientId, cancellationToken);
             return Ok(ApiResponse<IEnumerable<ExercisePrescriptionDto>>.SuccessResponse(history, "Patient exercise prescription history retrieved successfully."));
+        }
+
+        [HttpPost("~/api/patients/{patientId:int}/exercise-prescriptions")]
+        [HttpPost("~/api/patients/{patientId:int}/prescriptions")]
+        [ProducesResponseType(typeof(ApiResponse<ExercisePrescriptionDto>), StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> CreateForPatient(int patientId, [FromBody] CreateExercisePrescriptionDto dto, CancellationToken cancellationToken)
+        {
+            dto.PatientId = patientId;
+            var validationResult = await _createValidator.ValidateAsync(dto, cancellationToken);
+            if (!validationResult.IsValid)
+            {
+                throw new ValidationException(validationResult.Errors);
+            }
+
+            var created = await _prescriptionService.CreatePrescriptionAsync(dto, cancellationToken);
+            return CreatedAtAction(nameof(GetById), new { id = created.Id }, ApiResponse<ExercisePrescriptionDto>.SuccessResponse(created, "Exercise prescription created successfully."));
         }
 
         [HttpGet("~/api/treatment-plans/{treatmentPlanId:int}/exercise-prescriptions")]

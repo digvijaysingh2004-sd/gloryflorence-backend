@@ -105,6 +105,9 @@ namespace GloryFlorence.Application.Services
                     TreatmentPerformed = session.TreatmentPerformed,
                     Recommendations = session.Recommendations,
                     Notes = session.Notes,
+                    ModalitiesConducted = session.ModalitiesConducted,
+                    PatientTolerance = session.PatientTolerance,
+                    NextSessionPlan = session.NextSessionPlan,
                     CreatedAt = session.CreatedAt,
                     UpdatedAt = session.UpdatedAt
                 };
@@ -140,6 +143,9 @@ namespace GloryFlorence.Application.Services
                 TreatmentPerformed = session.TreatmentPerformed,
                 Recommendations = session.Recommendations,
                 Notes = session.Notes,
+                ModalitiesConducted = session.ModalitiesConducted,
+                PatientTolerance = session.PatientTolerance,
+                NextSessionPlan = session.NextSessionPlan,
                 CreatedAt = session.CreatedAt,
                 UpdatedAt = session.UpdatedAt
             };
@@ -205,6 +211,9 @@ namespace GloryFlorence.Application.Services
                 TreatmentPerformed = dto.TreatmentPerformed,
                 Recommendations = dto.Recommendations,
                 Notes = dto.Notes,
+                ModalitiesConducted = dto.ModalitiesConducted,
+                PatientTolerance = dto.PatientTolerance,
+                NextSessionPlan = dto.NextSessionPlan,
                 CreatedAt = DateTime.UtcNow
             };
 
@@ -223,7 +232,7 @@ namespace GloryFlorence.Application.Services
             return (await GetTreatmentSessionByIdAsync(session.Id, cancellationToken))!;
         }
 
-        public async Task UpdateTreatmentSessionAsync(int id, UpdateTreatmentSessionDto dto, CancellationToken cancellationToken = default)
+        public async Task<TreatmentSessionDto> UpdateTreatmentSessionAsync(int id, UpdateTreatmentSessionDto dto, CancellationToken cancellationToken = default)
         {
             var session = await _unitOfWork.TreatmentSessions.GetByIdAsync(id, cancellationToken);
             if (session == null)
@@ -260,6 +269,9 @@ namespace GloryFlorence.Application.Services
             session.TreatmentPerformed = dto.TreatmentPerformed;
             session.Recommendations = dto.Recommendations;
             session.Notes = dto.Notes;
+            if (dto.ModalitiesConducted != null) session.ModalitiesConducted = dto.ModalitiesConducted;
+            if (dto.PatientTolerance != null) session.PatientTolerance = dto.PatientTolerance;
+            if (dto.NextSessionPlan != null) session.NextSessionPlan = dto.NextSessionPlan;
             session.UpdatedAt = DateTime.UtcNow;
 
             _unitOfWork.TreatmentSessions.Update(session);
@@ -273,10 +285,13 @@ namespace GloryFlorence.Application.Services
                 OldValue = $"Status: {oldStatus}",
                 NewValue = $"Status: {session.Status}, PainAfter: {session.PainLevelAfter}"
             }, cancellationToken);
+
+            return (await GetTreatmentSessionByIdAsync(session.Id, cancellationToken))!;
         }
 
-        public async Task<TreatmentSessionDto> CompleteTreatmentSessionAsync(int id, CompleteTreatmentSessionDto dto, CancellationToken cancellationToken = default)
+        public async Task<TreatmentSessionDto> CompleteTreatmentSessionAsync(int id, CompleteTreatmentSessionDto? dto, CancellationToken cancellationToken = default)
         {
+            dto ??= new CompleteTreatmentSessionDto();
             var session = await _unitOfWork.TreatmentSessions.GetByIdAsync(id, cancellationToken);
             if (session == null)
             {

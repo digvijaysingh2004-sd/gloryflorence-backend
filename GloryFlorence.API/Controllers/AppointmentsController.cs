@@ -71,7 +71,11 @@ namespace GloryFlorence.API.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Update(int id, [FromBody] UpdateAppointmentDto dto, CancellationToken cancellationToken)
         {
-            if (id != dto.Id)
+            if (dto.Id == 0)
+            {
+                dto.Id = id;
+            }
+            else if (id != dto.Id)
             {
                 return BadRequest(ApiResponse<object>.FailureResponse("ID in route does not match ID in body."));
             }
@@ -99,7 +103,7 @@ namespace GloryFlorence.API.Controllers
         [HttpPut("{id:int}/cancel")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> Cancel(int id, [FromBody] CancelAppointmentDto dto, CancellationToken cancellationToken)
+        public async Task<IActionResult> Cancel(int id, [FromBody] CancelAppointmentDto? dto, CancellationToken cancellationToken)
         {
             await _appointmentService.CancelAppointmentAsync(id, dto, cancellationToken);
             return NoContent();

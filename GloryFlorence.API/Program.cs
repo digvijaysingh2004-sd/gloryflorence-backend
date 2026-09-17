@@ -38,7 +38,13 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(new GloryFlorence.Application.Common.Converters.FlexibleStringJsonConverter());
+        options.JsonSerializerOptions.Converters.Add(new GloryFlorence.Application.Common.Converters.FlexibleTimeSpanJsonConverter());
+        options.JsonSerializerOptions.Converters.Add(new GloryFlorence.Application.Common.Converters.NullableFlexibleTimeSpanJsonConverter());
+    });
 
 // Configure CORS for React frontend (supports standard port 3000 and Vite port 5173)
 builder.Services.AddCors(options =>
@@ -47,7 +53,12 @@ builder.Services.AddCors(options =>
     {
         policy.AllowAnyHeader()
               .AllowAnyMethod()
-              .WithOrigins("http://localhost:3000", "http://localhost:5173", "http://127.0.0.1:3000", "http://127.0.0.1:5173")
+              .WithOrigins(
+                  "http://localhost:3000", "https://localhost:3000",
+                  "http://localhost:5173", "https://localhost:5173",
+                  "http://127.0.0.1:3000", "https://127.0.0.1:3000",
+                  "http://127.0.0.1:5173", "https://127.0.0.1:5173"
+              )
               .AllowCredentials();
     });
 });

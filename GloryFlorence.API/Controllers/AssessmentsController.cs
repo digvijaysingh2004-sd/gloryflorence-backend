@@ -65,7 +65,7 @@ namespace GloryFlorence.API.Controllers
         }
 
         [HttpPut("{id:int}")]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(ApiResponse<PatientAssessmentDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Update(int id, [FromBody] UpdatePatientAssessmentDto dto, CancellationToken cancellationToken)
@@ -76,8 +76,8 @@ namespace GloryFlorence.API.Controllers
                 throw new ValidationException(validationResult.Errors);
             }
 
-            await _assessmentService.UpdateAssessmentAsync(id, dto, cancellationToken);
-            return NoContent();
+            var updated = await _assessmentService.UpdateAssessmentAsync(id, dto, cancellationToken);
+            return Ok(ApiResponse<PatientAssessmentDto>.SuccessResponse(updated, "Assessment updated successfully."));
         }
 
         [HttpDelete("{id:int}")]
@@ -112,6 +112,15 @@ namespace GloryFlorence.API.Controllers
 
             var created = await _assessmentService.CreateAssessmentAsync(dto, cancellationToken);
             return CreatedAtAction(nameof(GetById), new { id = created.Id }, ApiResponse<PatientAssessmentDto>.SuccessResponse(created, "Assessment created successfully."));
+        }
+
+        [HttpDelete("~/api/patients/{patientId:int}/assessments/{assessmentId:int}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> DeleteForPatient(int patientId, int assessmentId, CancellationToken cancellationToken)
+        {
+            await _assessmentService.DeleteAssessmentAsync(assessmentId, cancellationToken);
+            return NoContent();
         }
     }
 }

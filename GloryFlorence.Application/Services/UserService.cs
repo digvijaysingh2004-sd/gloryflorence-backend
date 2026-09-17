@@ -24,9 +24,15 @@ namespace GloryFlorence.Application.Services
 
         public async Task<LoginResponseDto> LoginAsync(LoginDto loginDto, CancellationToken cancellationToken)
         {
+            var identifier = !string.IsNullOrWhiteSpace(loginDto.UsernameOrEmail)
+                ? loginDto.UsernameOrEmail.Trim().ToLower()
+                : (!string.IsNullOrWhiteSpace(loginDto.Email)
+                    ? loginDto.Email.Trim().ToLower()
+                    : (loginDto.Username?.Trim().ToLower() ?? string.Empty));
+
             var userList = await _unitOfWork.Users.FindAsync(
-                u => u.Username.ToLower() == loginDto.UsernameOrEmail.ToLower() || 
-                     u.Email.ToLower() == loginDto.UsernameOrEmail.ToLower(), 
+                u => u.Username.ToLower() == identifier || 
+                     u.Email.ToLower() == identifier, 
                 cancellationToken);
 
             var user = userList.FirstOrDefault();
@@ -157,6 +163,43 @@ namespace GloryFlorence.Application.Services
 
             _unitOfWork.Users.Update(user);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
+        }
+
+        public async Task<UserDto> UpdateProfileAsync(string username, UpdateUserProfileDto dto, CancellationToken cancellationToken)
+        {
+            var userList = await _unitOfWork.Users.FindAsync(
+                u => u.Username.ToLower() == username.ToLower(),
+                cancellationToken);
+            var user = userList.FirstOrDefault();
+            if (user == null)
+            {
+                throw new NotFoundException(nameof(User), username);
+            }
+
+            if (!string.IsNullOrWhiteSpace(dto.Name))
+            {
+                var parts = dto.Name.Trim().Split(' ', 2, StringSplitOptions.RemoveEmptyEntries);
+                user.FirstName = parts.Length > 0 ? parts[0] : user.FirstName;
+                user.LastName = parts.Length > 1 ? parts[1] : string.Empty;
+            }
+
+            if (!string.IsNullOrWhiteSpace(dto.Email))
+            {
+                var existingEmail = await _unitOfWork.Users.FindAsync(
+                    u => u.Email.ToLower() == dto.Email.ToLower() && u.Id != user.Id,
+                    cancellationToken);
+                if (existingEmail.Any())
+                {
+                    throw new BadRequestException($"Email '{dto.Email}' is already registered.");
+                }
+                user.Email = dto.Email;
+            }
+
+            user.UpdatedAt = DateTime.UtcNow;
+            _unitOfWork.Users.Update(user);
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+            return MapToDto(user);
         }
 
         public async Task<IEnumerable<UserDto>> GetAllUsersAsync(CancellationToken cancellationToken)

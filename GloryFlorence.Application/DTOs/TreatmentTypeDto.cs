@@ -10,6 +10,7 @@ namespace GloryFlorence.Application.DTOs
         public string Name { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
         public int DefaultDurationMinutes { get; set; }
+        public int DurationMinutes => DefaultDurationMinutes;
         public decimal DefaultPrice { get; set; }
         public bool IsActive { get; set; }
         public DateTime CreatedAt { get; set; }

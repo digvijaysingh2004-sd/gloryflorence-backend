@@ -23,6 +23,19 @@ namespace GloryFlorence.Domain.Entities
         public string ClinicalNotes { get; set; } = string.Empty;
         public string Recommendations { get; set; } = string.Empty;
 
+        // Additional clinical assessment fields
+        public string? PainLocation { get; set; }
+        public string? PainType { get; set; }
+        public string? AggravatingFactors { get; set; }
+        public string? RelievingFactors { get; set; }
+        public string? RomFindings { get; set; }
+        public string? PostureAndGait { get; set; }
+        public string? FunctionalLimitations { get; set; }
+        public string? Prognosis { get; set; }
+        public string? ShortTermGoals { get; set; }
+        public string? LongTermGoals { get; set; }
+        public string? RecommendedFrequency { get; set; }
+
         // Navigation properties
         public virtual ICollection<TreatmentPlan> TreatmentPlans { get; set; } = new List<TreatmentPlan>();
     }

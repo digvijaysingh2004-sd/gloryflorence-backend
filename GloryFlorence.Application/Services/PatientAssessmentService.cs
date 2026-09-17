@@ -86,6 +86,17 @@ namespace GloryFlorence.Application.Services
                     Diagnosis = a.Diagnosis,
                     ClinicalNotes = a.ClinicalNotes,
                     Recommendations = a.Recommendations,
+                    PainLocation = a.PainLocation,
+                    PainType = a.PainType,
+                    AggravatingFactors = a.AggravatingFactors,
+                    RelievingFactors = a.RelievingFactors,
+                    RomFindings = a.RomFindings,
+                    PostureAndGait = a.PostureAndGait,
+                    FunctionalLimitations = a.FunctionalLimitations,
+                    Prognosis = a.Prognosis,
+                    ShortTermGoals = a.ShortTermGoals,
+                    LongTermGoals = a.LongTermGoals,
+                    RecommendedFrequency = a.RecommendedFrequency,
                     CreatedAt = a.CreatedAt,
                     UpdatedAt = a.UpdatedAt
                 };
@@ -120,6 +131,17 @@ namespace GloryFlorence.Application.Services
                 Diagnosis = assessment.Diagnosis,
                 ClinicalNotes = assessment.ClinicalNotes,
                 Recommendations = assessment.Recommendations,
+                PainLocation = assessment.PainLocation,
+                PainType = assessment.PainType,
+                AggravatingFactors = assessment.AggravatingFactors,
+                RelievingFactors = assessment.RelievingFactors,
+                RomFindings = assessment.RomFindings,
+                PostureAndGait = assessment.PostureAndGait,
+                FunctionalLimitations = assessment.FunctionalLimitations,
+                Prognosis = assessment.Prognosis,
+                ShortTermGoals = assessment.ShortTermGoals,
+                LongTermGoals = assessment.LongTermGoals,
+                RecommendedFrequency = assessment.RecommendedFrequency,
                 CreatedAt = assessment.CreatedAt,
                 UpdatedAt = assessment.UpdatedAt
             };
@@ -168,6 +190,17 @@ namespace GloryFlorence.Application.Services
                 Diagnosis = dto.Diagnosis,
                 ClinicalNotes = dto.ClinicalNotes,
                 Recommendations = dto.Recommendations,
+                PainLocation = dto.PainLocation,
+                PainType = dto.PainType,
+                AggravatingFactors = dto.AggravatingFactors,
+                RelievingFactors = dto.RelievingFactors,
+                RomFindings = dto.RomFindings,
+                PostureAndGait = dto.PostureAndGait,
+                FunctionalLimitations = dto.FunctionalLimitations,
+                Prognosis = dto.Prognosis,
+                ShortTermGoals = dto.ShortTermGoals,
+                LongTermGoals = dto.LongTermGoals,
+                RecommendedFrequency = dto.RecommendedFrequency,
                 CreatedAt = DateTime.UtcNow
             };
 
@@ -198,11 +231,22 @@ namespace GloryFlorence.Application.Services
                 Diagnosis = assessment.Diagnosis,
                 ClinicalNotes = assessment.ClinicalNotes,
                 Recommendations = assessment.Recommendations,
+                PainLocation = assessment.PainLocation,
+                PainType = assessment.PainType,
+                AggravatingFactors = assessment.AggravatingFactors,
+                RelievingFactors = assessment.RelievingFactors,
+                RomFindings = assessment.RomFindings,
+                PostureAndGait = assessment.PostureAndGait,
+                FunctionalLimitations = assessment.FunctionalLimitations,
+                Prognosis = assessment.Prognosis,
+                ShortTermGoals = assessment.ShortTermGoals,
+                LongTermGoals = assessment.LongTermGoals,
+                RecommendedFrequency = assessment.RecommendedFrequency,
                 CreatedAt = assessment.CreatedAt
             };
         }
 
-        public async Task UpdateAssessmentAsync(int id, UpdatePatientAssessmentDto dto, CancellationToken cancellationToken = default)
+        public async Task<PatientAssessmentDto> UpdateAssessmentAsync(int id, UpdatePatientAssessmentDto dto, CancellationToken cancellationToken = default)
         {
             var assessment = await _unitOfWork.PatientAssessments.GetByIdAsync(id, cancellationToken);
             if (assessment == null)
@@ -241,6 +285,17 @@ namespace GloryFlorence.Application.Services
             assessment.Diagnosis = dto.Diagnosis;
             assessment.ClinicalNotes = dto.ClinicalNotes;
             assessment.Recommendations = dto.Recommendations;
+            assessment.PainLocation = dto.PainLocation;
+            assessment.PainType = dto.PainType;
+            assessment.AggravatingFactors = dto.AggravatingFactors;
+            assessment.RelievingFactors = dto.RelievingFactors;
+            assessment.RomFindings = dto.RomFindings;
+            assessment.PostureAndGait = dto.PostureAndGait;
+            assessment.FunctionalLimitations = dto.FunctionalLimitations;
+            assessment.Prognosis = dto.Prognosis;
+            assessment.ShortTermGoals = dto.ShortTermGoals;
+            assessment.LongTermGoals = dto.LongTermGoals;
+            assessment.RecommendedFrequency = dto.RecommendedFrequency;
             assessment.UpdatedAt = DateTime.UtcNow;
 
             _unitOfWork.PatientAssessments.Update(assessment);
@@ -256,6 +311,38 @@ namespace GloryFlorence.Application.Services
                 OldValue = oldValue,
                 NewValue = newValue
             }, cancellationToken);
+
+            var patient = await _unitOfWork.Patients.GetByIdAsync(assessment.PatientId, cancellationToken);
+
+            return new PatientAssessmentDto
+            {
+                Id = assessment.Id,
+                PatientId = assessment.PatientId,
+                PatientName = patient != null ? $"{patient.FirstName} {patient.LastName}".Trim() : string.Empty,
+                SessionId = assessment.SessionId,
+                PhysiotherapistId = assessment.PhysiotherapistId,
+                PhysiotherapistName = $"{physiotherapist.FirstName} {physiotherapist.LastName}".Trim(),
+                AssessmentDate = assessment.AssessmentDate,
+                ChiefComplaint = assessment.ChiefComplaint,
+                CurrentCondition = assessment.CurrentCondition,
+                PainLevel = assessment.PainLevel,
+                Diagnosis = assessment.Diagnosis,
+                ClinicalNotes = assessment.ClinicalNotes,
+                Recommendations = assessment.Recommendations,
+                PainLocation = assessment.PainLocation,
+                PainType = assessment.PainType,
+                AggravatingFactors = assessment.AggravatingFactors,
+                RelievingFactors = assessment.RelievingFactors,
+                RomFindings = assessment.RomFindings,
+                PostureAndGait = assessment.PostureAndGait,
+                FunctionalLimitations = assessment.FunctionalLimitations,
+                Prognosis = assessment.Prognosis,
+                ShortTermGoals = assessment.ShortTermGoals,
+                LongTermGoals = assessment.LongTermGoals,
+                RecommendedFrequency = assessment.RecommendedFrequency,
+                CreatedAt = assessment.CreatedAt,
+                UpdatedAt = assessment.UpdatedAt
+            };
         }
 
         public async Task DeleteAssessmentAsync(int id, CancellationToken cancellationToken = default)
@@ -264,6 +351,13 @@ namespace GloryFlorence.Application.Services
             if (assessment == null)
             {
                 throw new NotFoundException($"Assessment with ID {id} was not found.");
+            }
+
+            var relatedPlans = (await _unitOfWork.TreatmentPlans.FindAsync(tp => tp.AssessmentId == id, cancellationToken)).ToList();
+            foreach (var plan in relatedPlans)
+            {
+                plan.AssessmentId = null;
+                _unitOfWork.TreatmentPlans.Update(plan);
             }
 
             _unitOfWork.PatientAssessments.Delete(assessment);

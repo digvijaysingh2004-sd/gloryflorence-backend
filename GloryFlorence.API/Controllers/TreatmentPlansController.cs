@@ -68,7 +68,7 @@ namespace GloryFlorence.API.Controllers
         }
 
         [HttpPut("{id:int}")]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(ApiResponse<TreatmentPlanDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Update(int id, [FromBody] UpdateTreatmentPlanDto dto, CancellationToken cancellationToken)
@@ -79,8 +79,8 @@ namespace GloryFlorence.API.Controllers
                 throw new ValidationException(validationResult.Errors);
             }
 
-            await _planService.UpdateTreatmentPlanAsync(id, dto, cancellationToken);
-            return NoContent();
+            var updated = await _planService.UpdateTreatmentPlanAsync(id, dto, cancellationToken);
+            return Ok(ApiResponse<TreatmentPlanDto>.SuccessResponse(updated, "Treatment plan updated successfully."));
         }
 
         [HttpPatch("{id:int}/status")]
@@ -131,6 +131,22 @@ namespace GloryFlorence.API.Controllers
 
             var created = await _planService.CreateTreatmentPlanAsync(dto, cancellationToken);
             return CreatedAtAction(nameof(GetById), new { id = created.Id }, ApiResponse<TreatmentPlanDto>.SuccessResponse(created, "Treatment plan created successfully."));
+        }
+
+        [HttpPut("~/api/patients/{patientId:int}/treatment-plans/{planId:int}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> UpdateForPatient(int patientId, int planId, [FromBody] UpdateTreatmentPlanDto dto, CancellationToken cancellationToken)
+        {
+            var validationResult = await _updateValidator.ValidateAsync(dto, cancellationToken);
+            if (!validationResult.IsValid)
+            {
+                throw new ValidationException(validationResult.Errors);
+            }
+
+            await _planService.UpdateTreatmentPlanAsync(planId, dto, cancellationToken);
+            return NoContent();
         }
     }
 }

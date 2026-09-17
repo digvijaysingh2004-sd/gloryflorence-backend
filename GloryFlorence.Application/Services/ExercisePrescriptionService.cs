@@ -128,6 +128,8 @@ namespace GloryFlorence.Application.Services
                     PhysiotherapistName = physioName,
                     TreatmentPlanId = p.TreatmentPlanId,
                     TreatmentPlanGoal = planGoal,
+                    TargetGoal = p.TargetGoal ?? planGoal,
+                    Diagnosis = p.Diagnosis ?? string.Empty,
                     PrescriptionDate = p.PrescriptionDate,
                     Instructions = p.Instructions,
                     Status = p.Status,
@@ -191,6 +193,8 @@ namespace GloryFlorence.Application.Services
                 PhysiotherapistName = physio != null ? $"{physio.FirstName} {physio.LastName}".Trim() : string.Empty,
                 TreatmentPlanId = prescription.TreatmentPlanId,
                 TreatmentPlanGoal = plan?.Goal ?? string.Empty,
+                TargetGoal = prescription.TargetGoal ?? plan?.Goal ?? string.Empty,
+                Diagnosis = prescription.Diagnosis ?? string.Empty,
                 PrescriptionDate = prescription.PrescriptionDate,
                 Instructions = prescription.Instructions,
                 Status = prescription.Status,
@@ -259,6 +263,8 @@ namespace GloryFlorence.Application.Services
                 PrescriptionDate = dto.PrescriptionDate,
                 Instructions = dto.Instructions ?? string.Empty,
                 Status = string.IsNullOrWhiteSpace(dto.Status) ? "Active" : dto.Status,
+                Diagnosis = dto.Diagnosis,
+                TargetGoal = dto.TargetGoal,
                 CreatedAt = DateTime.UtcNow
             };
 
@@ -295,7 +301,7 @@ namespace GloryFlorence.Application.Services
             return (await GetPrescriptionByIdAsync(prescription.Id, cancellationToken))!;
         }
 
-        public async Task UpdatePrescriptionAsync(int id, UpdateExercisePrescriptionDto dto, CancellationToken cancellationToken = default)
+        public async Task<ExercisePrescriptionDto> UpdatePrescriptionAsync(int id, UpdateExercisePrescriptionDto dto, CancellationToken cancellationToken = default)
         {
             var prescription = await _unitOfWork.ExercisePrescriptions.GetByIdAsync(id, cancellationToken);
             if (prescription == null)
@@ -330,6 +336,8 @@ namespace GloryFlorence.Application.Services
             {
                 prescription.Status = dto.Status;
             }
+            if (dto.Diagnosis != null) prescription.Diagnosis = dto.Diagnosis;
+            if (dto.TargetGoal != null) prescription.TargetGoal = dto.TargetGoal;
             prescription.UpdatedAt = DateTime.UtcNow;
 
             if (dto.PrescriptionDetails != null)
@@ -390,6 +398,8 @@ namespace GloryFlorence.Application.Services
                 OldValue = oldSummary,
                 NewValue = newSummary
             }, cancellationToken);
+
+            return (await GetPrescriptionByIdAsync(prescription.Id, cancellationToken))!;
         }
 
         public async Task UpdatePrescriptionStatusAsync(int id, UpdateExercisePrescriptionStatusDto dto, CancellationToken cancellationToken = default)

@@ -8,7 +8,7 @@ namespace GloryFlorence.Application.Validators
         public CreateTreatmentTypeDtoValidator()
         {
             RuleFor(x => x.CategoryId)
-                .GreaterThan(0).WithMessage("Valid Category ID is required.");
+                .GreaterThanOrEqualTo(0).WithMessage("Valid Category ID is required.");
 
             RuleFor(x => x.Name)
                 .NotEmpty().WithMessage("Treatment name is required.")

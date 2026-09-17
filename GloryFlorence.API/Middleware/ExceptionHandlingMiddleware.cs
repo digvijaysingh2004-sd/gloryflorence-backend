@@ -52,6 +52,10 @@ namespace GloryFlorence.API.Middleware
                     statusCode = HttpStatusCode.NotFound;
                     message = notFoundEx.Message;
                     break;
+                case KeyNotFoundException keyNotFoundEx:
+                    statusCode = HttpStatusCode.NotFound;
+                    message = keyNotFoundEx.Message;
+                    break;
                 case UnauthorizedException unauthorizedEx:
                     statusCode = HttpStatusCode.Unauthorized;
                     message = unauthorizedEx.Message;
@@ -64,6 +68,18 @@ namespace GloryFlorence.API.Middleware
                     statusCode = HttpStatusCode.BadRequest;
                     message = "Validation failed.";
                     errors = validationEx.Errors.Select(e => e.ErrorMessage);
+                    break;
+                case InvalidOperationException invalidOpEx:
+                    statusCode = HttpStatusCode.BadRequest;
+                    message = invalidOpEx.Message;
+                    break;
+                case ArgumentException argEx:
+                    statusCode = HttpStatusCode.BadRequest;
+                    message = argEx.Message;
+                    break;
+                case Microsoft.EntityFrameworkCore.DbUpdateException dbUpdateEx:
+                    statusCode = HttpStatusCode.BadRequest;
+                    message = "Database operation failed: " + (dbUpdateEx.InnerException?.Message ?? dbUpdateEx.Message);
                     break;
                 default:
                     if (_env.IsDevelopment())

@@ -112,6 +112,8 @@ namespace GloryFlorence.Application.Services
                     Goal = plan.Goal,
                     Notes = plan.Notes,
                     Status = plan.Status,
+                    Diagnosis = plan.Diagnosis,
+                    TreatmentFrequency = plan.TreatmentFrequency,
                     CreatedAt = plan.CreatedAt,
                     UpdatedAt = plan.UpdatedAt,
                     Details = details
@@ -149,6 +151,8 @@ namespace GloryFlorence.Application.Services
                 Goal = plan.Goal,
                 Notes = plan.Notes,
                 Status = plan.Status,
+                Diagnosis = plan.Diagnosis,
+                TreatmentFrequency = plan.TreatmentFrequency,
                 CreatedAt = plan.CreatedAt,
                 UpdatedAt = plan.UpdatedAt,
                 Details = details.Select(d => new TreatmentPlanDetailDto
@@ -181,16 +185,19 @@ namespace GloryFlorence.Application.Services
                 throw new NotFoundException($"Physiotherapist with ID {dto.PhysiotherapistId} was not found.");
             }
 
-            // 3. Validate Assessment & ensure assessment belongs to this patient
-            var assessment = await _unitOfWork.PatientAssessments.GetByIdAsync(dto.AssessmentId, cancellationToken);
-            if (assessment == null)
+            // 3. Validate Assessment & ensure assessment belongs to this patient (if provided)
+            if (dto.AssessmentId.HasValue && dto.AssessmentId.Value > 0)
             {
-                throw new NotFoundException($"Assessment with ID {dto.AssessmentId} was not found.");
-            }
+                var assessment = await _unitOfWork.PatientAssessments.GetByIdAsync(dto.AssessmentId.Value, cancellationToken);
+                if (assessment == null)
+                {
+                    throw new NotFoundException($"Assessment with ID {dto.AssessmentId.Value} was not found.");
+                }
 
-            if (assessment.PatientId != dto.PatientId)
-            {
-                throw new InvalidOperationException("The specified clinical assessment does not belong to this patient.");
+                if (assessment.PatientId != dto.PatientId)
+                {
+                    throw new InvalidOperationException("The specified clinical assessment does not belong to this patient.");
+                }
             }
 
             // 4. Validate TreatmentTypes in details
@@ -217,6 +224,8 @@ namespace GloryFlorence.Application.Services
                 Goal = dto.Goal,
                 Notes = dto.Notes,
                 Status = string.IsNullOrWhiteSpace(dto.Status) ? "Draft" : dto.Status,
+                Diagnosis = dto.Diagnosis,
+                TreatmentFrequency = dto.TreatmentFrequency,
                 CreatedAt = DateTime.UtcNow
             };
 
@@ -251,7 +260,7 @@ namespace GloryFlorence.Application.Services
             return (await GetTreatmentPlanByIdAsync(plan.Id, cancellationToken))!;
         }
 
-        public async Task UpdateTreatmentPlanAsync(int id, UpdateTreatmentPlanDto dto, CancellationToken cancellationToken = default)
+        public async Task<TreatmentPlanDto> UpdateTreatmentPlanAsync(int id, UpdateTreatmentPlanDto dto, CancellationToken cancellationToken = default)
         {
             var plan = await _unitOfWork.TreatmentPlans.GetByIdAsync(id, cancellationToken);
             if (plan == null)
@@ -276,6 +285,8 @@ namespace GloryFlorence.Application.Services
             {
                 plan.Status = dto.Status;
             }
+            if (dto.Diagnosis != null) plan.Diagnosis = dto.Diagnosis;
+            if (dto.TreatmentFrequency != null) plan.TreatmentFrequency = dto.TreatmentFrequency;
             plan.UpdatedAt = DateTime.UtcNow;
 
             if (dto.Details != null)
@@ -324,6 +335,8 @@ namespace GloryFlorence.Application.Services
                 OldValue = $"Status: {oldStatus}",
                 NewValue = $"Status: {plan.Status}, Sessions: {plan.NumberOfSessions}"
             }, cancellationToken);
+
+            return (await GetTreatmentPlanByIdAsync(plan.Id, cancellationToken))!;
         }
 
         public async Task UpdateTreatmentPlanStatusAsync(int id, UpdateTreatmentPlanStatusDto dto, CancellationToken cancellationToken = default)
