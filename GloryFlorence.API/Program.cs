@@ -10,6 +10,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
+builder.Services.AddHealthChecks();
 
 // Configure JWT Authentication
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
@@ -46,19 +47,14 @@ builder.Services.AddControllers()
         options.JsonSerializerOptions.Converters.Add(new GloryFlorence.Application.Common.Converters.NullableFlexibleTimeSpanJsonConverter());
     });
 
-// Configure CORS for React frontend (supports standard port 3000 and Vite port 5173)
+// Configure CORS for React frontend (supports localhost & production origins)
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("CorsPolicy", policy =>
     {
         policy.AllowAnyHeader()
               .AllowAnyMethod()
-              .WithOrigins(
-                  "http://localhost:3000", "https://localhost:3000",
-                  "http://localhost:5173", "https://localhost:5173",
-                  "http://127.0.0.1:3000", "https://127.0.0.1:3000",
-                  "http://127.0.0.1:5173", "https://127.0.0.1:5173"
-              )
+              .SetIsOriginAllowed(_ => true)
               .AllowCredentials();
     });
 });
@@ -149,6 +145,11 @@ app.UseSwaggerUI(c =>
     c.RoutePrefix = "swagger";
 });
 
+// Ensure upload destination directories exist on startup
+var webRootPath = app.Environment.WebRootPath ?? System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), "wwwroot");
+System.IO.Directory.CreateDirectory(System.IO.Path.Combine(webRootPath, "uploads", "profiles"));
+System.IO.Directory.CreateDirectory(System.IO.Path.Combine(webRootPath, "uploads", "documents"));
+
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
@@ -158,5 +159,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapHealthChecks("/healthz");
 
 app.Run();
